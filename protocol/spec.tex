@@ -1,6 +1,7 @@
 \documentclass{scrartcl}
 
 \usepackage[utf8]{inputenc}
+\usepackage{csquotes}
 \usepackage{tikz}
 \usepackage{url}
 \usepackage{mdframed}
@@ -8,7 +9,7 @@
 
 \usepackage{hyperref}
 
-\usetikzlibrary{decorations.pathreplacing, angles, quotes, matrix}
+\usetikzlibrary{decorations.pathreplacing, angles, quotes, matrix, positioning}
 
 \newcommand{\tushan}{\textsc{Tushan}}
 
@@ -30,12 +31,81 @@ touching the sites of the field (of said player). These notions are specified
 in the following.
 
 \section{Entities}
+\subsection{Stone}
+The stones are placed by the players onto the field to form the flow and 
+eventually determine the result of the game.
+\subsubsection{Description}
+A stone is a rectangular shape with a width $n$ and a height $m$. The notions 
+of width and height are rastered by the cells, hence any stone covers an area
+of $n\times m$ cells. The number of connectors is variable although throughout 
+one game it usually is consistent. There is at least one connector (although 
+for a game with consistent connector numbers stones with one connector enforce 
+trivial results). Stones are described in terms of $n$ and $m$ and their 
+connectors. Additionally, to incorporate their placements in the game we opt to 
+use a representation which contains one specific reference cell (the top left
+corner) and their orientation in terms of the direction the top edge is facing
+(given by one of the four values \enquote{north}, \enquote{east}, 
+\enquote{south} or \enquote{west}). The connectors are identified by indices 
+which move around clockwise (starting by $0$) from the top left covered cell.
+\subsubsection{Illustration}
+\begin{mdframed}
+  \begin{center}
+    \begin{tikzpicture}
+      \matrix (stone) [
+        matrix of nodes,
+        nodes in empty cells,
+        nodes = {
+          draw, 
+          rectangle,
+          anchor = center,
+          minimum height = 1.2cm,
+          minimum width = 1.2cm,
+        }
+        ] {
+           &  & \\
+           &  & \\
+           &  & \\
+      };
+      \draw [ decoration = { brace, amplitude = 5pt, raise = 20pt }, decorate, 
+        line width = 1pt ]
+          (stone-1-1.north west) -- node [above, yshift = 25pt] {$n$} 
+          (stone-1-3.north east);
+      \draw [ decoration = { brace, amplitude = 5pt, raise = 80pt }, decorate, 
+        line width = 1pt ]
+          (stone-3-1.south west) -- node [left, xshift = -85pt] {$m$} 
+          (stone-1-1.north west);
+      \draw [ decoration = { brace, amplitude = 5pt, raise = 50pt }, decorate, 
+        line width = 1pt ]
+          (stone-1-3.north east) -- node [right, xshift = 55pt] {$m$} 
+          (stone-3-3.south east);
+      \draw [ decoration = { brace, amplitude = 5pt, raise = 20pt }, decorate, 
+        line width = 1pt ]
+          (stone-3-3.south east) -- node [below, yshift = -25pt] {$n$} 
+          (stone-3-1.south west);
+
+      \node [yshift = 5pt]   at (stone-1-1.north) {$0$};
+      \node [yshift = 5pt]   at (stone-1-3.north) {$n - 1$};
+      \node [xshift = 5pt]   at (stone-1-3.east)  {$n$};
+      \node [xshift = 25pt]  at (stone-3-3.east)  {$n + m - 1$};
+      \node [yshift = -5pt]  at (stone-3-3.south) {$n + m$};
+      \node [yshift = -5pt]  at (stone-3-1.south) {$2\cdot n + m - 1$};
+      \node [xshift = -25pt] at (stone-3-1.west)  {$2\cdot n + m$};
+      \node [xshift = -40pt] at (stone-1-1.west)  {$2\cdot n + 2\cdot m - 1$};
+
+      \node [circle, draw, fill] (orientation start) at (stone-1-1.center) {};
+      \draw [->, line width = 1.5pt] (orientation start) to node [above, xshift=-2pt] 
+        {\tiny orientation} (stone-1-3.center);
+    \end{tikzpicture}
+  \end{center}
+\end{mdframed}
 \subsection{Field}
 The field of the game.
 \subsubsection{Description}
 The field is a quadratic collection of cells. Each cell is identified by its 
 coordinates starting with $(0,0)$ at the top left and proceeding to the left 
 with increasing first element and to the bottom with increasing second element.
+The four values \enquote{north}, \enquote{east}, \enquote{south} and 
+\enquote{west} refer to the top, left, bottom and right side respectively.
 \subsubsection{Illustration}
 \begin{mdframed}
   \begin{center}
@@ -61,20 +131,26 @@ with increasing first element and to the bottom with increasing second element.
           (field-1-4.north east);
       \draw [ decoration = { brace, raise = 5pt, amplitude = 10pt, mirror }, 
         decorate, line width = 1pt ]
-          (field-4-1.south west) -- node [below, yshift = -15pt] {Player $A$} 
-          (field-4-4.south east);
+          (field-4-1.south west) -- node [below, yshift = -15pt, label = {
+            [rotate = 180] {Player $A$}}] {} (field-4-4.south east);
       \draw [ draw, -> , line width = 1pt] ([yshift = 5pt] field-1-1.north west) 
         to node [above] {$x$} ([yshift = 5pt] field-1-4.north east);
       \draw [ draw, -> , line width = 1pt] ([xshift = -5pt] field-1-1.north west) 
         to node [left] {$y$} ([xshift = -5pt] field-4-1.south west);
       \draw [ decoration = { brace, raise = 15pt, amplitude = 10pt, mirror }, 
         decorate, line width = 1pt ]
-          (field-1-1.north west) -- node [left, xshift = -25pt] {Player $B$} 
-          (field-4-1.south west);
+          (field-1-1.north west) -- node [left, xshift = -25pt, label = {
+            [rotate = 90] {Player $B$}}] {} (field-4-1.south west);
       \draw [ decoration = { brace, raise = 5pt, amplitude = 10pt }, 
         decorate, line width = 1pt ]
-          (field-1-4.north east) -- node [right, xshift = 15pt] {Player $B$} 
+          (field-1-4.north east) -- node [right, xshift = 15pt, label = {
+            [rotate = -90] {Player $B$}}] {} 
           (field-4-4.south east);
+
+      \node [above = 2 of field] (n) {north};
+      \node [right = 1.6 of field, label = {[rotate = -90] {east}}] {};
+      \node [below = 1.6 of field, label = {[rotate = 180] {south}}] {};
+      \node [left  = 2 of field, label = {[rotate = 90] {west}}] {};
     \end{tikzpicture}
   \end{center}
 \end{mdframed}
