@@ -1,3 +1,12 @@
-SPECSRC=specification/
+help :
+	@echo "make protocol"
+	@echo ">> builds protocol specifications"
 
-.PHONY: spec clear
+.DEFAULT: help
+
+.PHONY: protocol
+
+PROTSRC=protocol/
+protocol :
+	@echo "making protocol specifications"
+	$(MAKE) -C $(PROTSRC)
