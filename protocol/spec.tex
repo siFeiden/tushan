@@ -5,18 +5,23 @@
 \usepackage{tikz}
 \usepackage{url}
 \usepackage{mdframed}
-\usepackage{listing}
+\usepackage{minted}
 
 \usepackage{hyperref}
 
 \usetikzlibrary{decorations.pathreplacing, angles, quotes, matrix, positioning}
 
 \newcommand{\tushan}{\textsc{Tushan}}
+\title{\tushan{}}
 
 \begin{document}
+
+\maketitle
+
 This document is the specification of \tushan{}. It contains the 
 definitions of game rules, logical entities and their representation and 
-protocol specification.
+protocol specification. The protocol relies on exchanging JSON-messages, hence
+every entity of the game is encoded as such.
 
 \section{Game Description}
 \tushan{} is based on the game 
@@ -93,19 +98,54 @@ which move around clockwise (starting by $0$) from the top left covered cell.
       \node [xshift = -40pt] at (stone-1-1.west)  {$2\cdot n + 2\cdot m - 1$};
 
       \node [circle, draw, fill] (orientation start) at (stone-1-1.center) {};
-      \draw [->, line width = 1.5pt] (orientation start) to node [above, xshift=-2pt] 
+      \draw [->, line width = 1.5pt] (orientation start) to node [above, 
+      xshift=-2pt] 
         {\tiny orientation} (stone-1-3.center);
     \end{tikzpicture}
   \end{center}
 \end{mdframed}
+
+\subsubsection{Representation}
+The encoding of one stone might depend on the fact if it is already placed or 
+not. Regardless, we define for any $n,m > 0$ and $c_{0}, \dots, c_{n}$ pairwise
+distinct values with $0 \leq c_{i} < 2\cdot n + 2\cdot m$ for $0\leq i\leq n$.
+\begin{minted}[escapeinside=||]{text}
+  {
+    "width": |$n$|,
+    "height": |$m$|,
+    "connectors": [|$c_0, \dots, c_n$|]
+  }
+\end{minted}
+If the stone is placed in a \hyperlink{field}{field} this is indicated by the 
+inclusion of an additional object with key \mintinline{json}{"position"}. Here 
+valid ranges of coordinates $x, y \geq 0$ depend on the 
+\hyperlink{field}{field} the stone is placed in while $o$ is always one of the 
+values \mintinline{json}{"north"}, \mintinline{json}{"east"}, 
+\mintinline{json}{"south"} or \mintinline{json}{"west"}.
+\begin{minted}[escapeinside=||]{text}
+  {
+    "width": |$n$|,
+    "height": |$m$|,
+    "connectors": [|$c_0, \dots, c_n$|],
+    "position": {
+      "x": |$x$|,
+      "y": |$y$|,
+      "orientation": |$o$|
+    }
+  }
+\end{minted}
+\subsubsection{Example}
+
 \subsection{Field}
-The field of the game.
+The \hypertarget{field}{field} of the game.
+
 \subsubsection{Description}
 The field is a quadratic collection of cells. Each cell is identified by its 
 coordinates starting with $(0,0)$ at the top left and proceeding to the left 
 with increasing first element and to the bottom with increasing second element.
 The four values \enquote{north}, \enquote{east}, \enquote{south} and 
 \enquote{west} refer to the top, left, bottom and right side respectively.
+
 \subsubsection{Illustration}
 \begin{mdframed}
   \begin{center}
@@ -154,5 +194,7 @@ The four values \enquote{north}, \enquote{east}, \enquote{south} and
     \end{tikzpicture}
   \end{center}
 \end{mdframed}
+
 \subsubsection{Representation}
+
 \end{document}
