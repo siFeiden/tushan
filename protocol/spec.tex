@@ -6,11 +6,14 @@
 \usepackage{tikz}
 \usepackage{url}
 \usepackage{mdframed}
-\usepackage{minted}
+\usepackage{multicol}
+\usepackage[outputdir = build]{minted}
+\setminted{fontsize = \footnotesize}
 
 \usepackage{hyperref}
 
-\usetikzlibrary{decorations.pathreplacing, angles, quotes, matrix, positioning}
+\usetikzlibrary{decorations.pathreplacing, angles, quotes, matrix, positioning,
+  patterns}
 
 \newcommand{\tushan}{\textsc{Tushan}}
 
@@ -43,26 +46,52 @@ in the following.
 \subsection{Stone}
 \hypertarget{stone}{}
 The stones are placed by the players onto the field to form the flow and 
-eventually determine the result of the game.
+eventually determine the result of the game. A stone is a rectangular shape 
+with a width $n$ and a height $m$. The notions of width and height are rastered 
+by the cells, hence any stone covers an \hyperlink{area}{\emph{area}} of 
+$n\times m$ cells. The number of connectors is variable although throughout one 
+game it usually is consistent. There is at least one connector (although for a 
+game with consistent connector numbers stones with one connector enforce 
+trivial results). Stones are described in terms of $n$ and $m$ and their 
+connectors. Additionally, to incorporate their placements in the game we opt to 
+use a representation which contains one specific reference cell (the top left 
+corner) and their orientation in terms of the direction the top edge is facing 
+(given by one of the four values \mintinline{json}{"north"}, 
+\mintinline{json}{"east"}, \mintinline{json}{"south"} or 
+\mintinline{json}{"west"}). The connectors are identified by indices which move 
+around clockwise (starting by $0$) from the top left covered cell.
 
-\subsubsection{Description}
-A stone is a rectangular shape with a width $n$ and a height $m$. The notions 
-of width and height are rastered by the cells, hence any stone covers an 
-\hyperlink{area}{\emph{area}} of $n\times m$ cells. The number of connectors is 
-variable although throughout one game it usually is consistent. There is at 
-least one connector (although for a game with consistent connector numbers 
-stones with one connector enforce trivial results). Stones are described in 
-terms of $n$ and $m$ and their connectors. Additionally, to incorporate their 
-placements in the game we opt to use a representation which contains one 
-specific reference cell (the top left corner) and their orientation in terms of 
-the direction the top edge is facing (given by one of the four values 
-\mintinline{json}{"north"}, \mintinline{json}{"east"}, 
-\mintinline{json}{"south"} or \mintinline{json}{"west"}). The connectors are 
-identified by indices which move around clockwise (starting by $0$) from the 
-top left covered cell.
-
-\subsubsection{Illustration}
-\begin{mdframed}
+\begin{mdframed}[frametitle = {Representation and Illustration}]
+  The encoding of one stone might depend on the fact if it is already placed 
+  or not. Regardless, we define for any $n,m > 0$ and $c_{0}, \dots, c_{n}$ 
+  pairwise distinct values with $0 \leq c_{i} < 2\cdot n + 2\cdot m$ for 
+  $0\leq i\leq n$.
+  \begin{minted}[escapeinside=||]{text}
+    {
+      "width": |$n$|,
+      "height": |$m$|,
+      "connectors": [|$c_0, \dots, c_n$|]
+    }
+  \end{minted}
+  If the stone is placed in a \hyperlink{field}{\emph{field}} this is 
+  indicated by the inclusion of an additional object with key 
+  \mintinline{json}{"position"}. Here valid ranges of coordinates 
+  $x, y \geq 0$ depend on the \hyperlink{field}{\emph{field}} the stone is 
+  placed in while $o$ is always one of the values \mintinline{json}{"north"}, 
+  \mintinline{json}{"east"}, \mintinline{json}{"south"} or 
+  \mintinline{json}{"west"}.
+  \begin{minted}[escapeinside=||]{text}
+    {
+      "width": |$n$|,
+      "height": |$m$|,
+      "connectors": [|$c_0, \dots, c_n$|],
+      "position": {
+        "x": |$x$|,
+        "y": |$y$|,
+        "orientation": |$o$|
+      }
+    }
+  \end{minted}
   \begin{center}
     \begin{tikzpicture}
       \matrix (stone) [
@@ -80,33 +109,33 @@ top left covered cell.
            &  & \\
            &  & \\
       };
-      \draw [ decoration = { brace, amplitude = 5pt, raise = 20pt }, decorate, 
-        line width = 1pt ]
+      \draw [ decoration = { brace, amplitude = 5pt, raise = 20pt }, 
+        decorate, line width = 1pt ]
           (stone-1-1.north west) -- node [above, yshift = 25pt] {$n$} 
           (stone-1-3.north east);
-      \draw [ decoration = { brace, amplitude = 5pt, raise = 80pt }, decorate, 
-        line width = 1pt ]
+      \draw [ decoration = { brace, amplitude = 5pt, raise = 80pt }, 
+        decorate, line width = 1pt ]
           (stone-3-1.south west) -- node [left, xshift = -85pt] {$m$} 
           (stone-1-1.north west);
-      \draw [ decoration = { brace, amplitude = 5pt, raise = 50pt }, decorate, 
-        line width = 1pt ]
+      \draw [ decoration = { brace, amplitude = 5pt, raise = 50pt }, 
+        decorate, line width = 1pt ]
           (stone-1-3.north east) -- node [right, xshift = 55pt] {$m$} 
           (stone-3-3.south east);
-      \draw [ decoration = { brace, amplitude = 5pt, raise = 20pt }, decorate, 
-        line width = 1pt ]
+      \draw [ decoration = { brace, amplitude = 5pt, raise = 20pt }, 
+        decorate, line width = 1pt ]
           (stone-3-3.south east) -- node [below, yshift = -25pt] {$n$} 
           (stone-3-1.south west);
 
-      \node [yshift = 5pt]   at (stone-1-1.north) {$0$};
-      \node [yshift = 5pt]   at (stone-1-3.north) {$n - 1$};
-      \node [xshift = 5pt]   at (stone-1-3.east)  {$n$};
-      \node [xshift = 25pt]  at (stone-3-3.east)  {$n + m - 1$};
-      \node [yshift = -5pt]  at (stone-3-3.south) {$n + m$};
-      \node [yshift = -5pt]  at (stone-3-1.south) {$2\cdot n + m - 1$};
-      \node [xshift = -25pt] at (stone-3-1.west)  {$2\cdot n + m$};
-      \node [xshift = -40pt] at (stone-1-1.west)  {$2\cdot n + 2\cdot m - 1$};
+      \node [yshift = 5pt]   at (stone-1-1.north){$0$};
+      \node [yshift = 5pt]   at (stone-1-3.north){$n - 1$};
+      \node [xshift = 5pt]   at (stone-1-3.east) {$n$};
+      \node [xshift = 25pt]  at (stone-3-3.east) {$n + m - 1$};
+      \node [yshift = -5pt]  at (stone-3-3.south){$n + m$};
+      \node [yshift = -5pt]  at (stone-3-1.south){$2\cdot n + m - 1$};
+      \node [xshift = -25pt] at (stone-3-1.west) {$2\cdot n + m$};
+      \node [xshift = -40pt] at (stone-1-1.west) {$2\cdot n + 2\cdot m - 1$};
 
-      \node [circle, draw, fill] (orientation start) at (stone-1-1.center) {};
+      \node [circle, draw, fill] (orientation start) at (stone-1-1.center){};
       \draw [->, line width = 1.5pt] (orientation start) to node [above, 
       xshift=-2pt] 
         {\tiny orientation} (stone-1-3.center);
@@ -114,38 +143,7 @@ top left covered cell.
   \end{center}
 \end{mdframed}
 
-\subsubsection{Representation}
-The encoding of one stone might depend on the fact if it is already placed or 
-not. Regardless, we define for any $n,m > 0$ and $c_{0}, \dots, c_{n}$ pairwise
-distinct values with $0 \leq c_{i} < 2\cdot n + 2\cdot m$ for $0\leq i\leq n$.
-\begin{minted}[escapeinside=||]{text}
-  {
-    "width": |$n$|,
-    "height": |$m$|,
-    "connectors": [|$c_0, \dots, c_n$|]
-  }
-\end{minted}
-If the stone is placed in a \hyperlink{field}{\emph{field}} this is indicated 
-by the inclusion of an additional object with key 
-\mintinline{json}{"position"}. Here valid ranges of coordinates $x, y \geq 0$ 
-depend on the \hyperlink{field}{\emph{field}} the stone is placed in while $o$ 
-is always one of the values \mintinline{json}{"north"}, 
-\mintinline{json}{"east"}, \mintinline{json}{"south"} or 
-\mintinline{json}{"west"}.
-\begin{minted}[escapeinside=||]{text}
-  {
-    "width": |$n$|,
-    "height": |$m$|,
-    "connectors": [|$c_0, \dots, c_n$|],
-    "position": {
-      "x": |$x$|,
-      "y": |$y$|,
-      "orientation": |$o$|
-    }
-  }
-\end{minted}
 
-\subsubsection{Associated Notions}
 \begin{mdframed}
   \hypertarget{area}{\emph{Area of placed stone}} - The area of a placed stone 
   is defined by all cells it covers, namely all cells with coordinates 
@@ -184,9 +182,8 @@ is always one of the values \mintinline{json}{"north"},
   connector that is adjacent to another connector.
 \end{mdframed}
 
-\subsubsection{Example}
-We consider the following stone and its encoding
-\begin{mdframed}
+\begin{mdframed}[frametitle = {Example}]
+  Not yet placed:\\
   \begin{minipage}{0.5\textwidth}
     \inputminted{json}{examples/not-placed-stone.json}
   \end{minipage}%
@@ -231,11 +228,8 @@ We consider the following stone and its encoding
     \end{center}
     \tiny{Green circles indicate a connector while red circles mark positions of
     possible but for this stone not available connectors.}
- \end{minipage}%
-\end{mdframed}
-
-Additionally, we might encounter this stone after its already placed, e.g.
-\begin{mdframed}
+  \end{minipage}
+  Already placed:\\
   \begin{minipage}{0.5\textwidth}
     \inputminted{json}{examples/placed-stone.json}
   \end{minipage}%
@@ -283,20 +277,26 @@ Additionally, we might encounter this stone after its already placed, e.g.
 
 \subsection{Field}
 \hypertarget{field}{}
-The field of the game.
+The field of the game is a quadratic collection of cells. Each cell is 
+identified by its coordinates starting with $(0,0)$ at the top left and 
+proceeding to the left with increasing first element and to the bottom with 
+increasing second element, this corresponds to a discrete cartesian coordinate 
+system starting at the top left growing right- and downwards. The four values 
+\enquote{north}, \enquote{east}, \enquote{south} and \enquote{west} refer to 
+the top, left, bottom and right side respectively and are especially relevant 
+for the orientation of placed \hyperlink{stone}{\emph{stones}}.
 
-\subsubsection{Description}
-The field is a quadratic collection of cells. Each cell is identified by its 
-coordinates starting with $(0,0)$ at the top left and proceeding to the left 
-with increasing first element and to the bottom with increasing second element,
-this corresponds to a discrete cartesian coordinate system starting at the top
-left growing right- and downwards. The four values \enquote{north}, 
-\enquote{east}, \enquote{south} and \enquote{west} refer to the top, left, 
-bottom and right side respectively and are especially relevant for the 
-orientation of placed \hyperlink{stone}{\emph{stones}}.
-
-\subsubsection{Illustration}
-\begin{mdframed}
+\begin{mdframed}[frametitle = {Representation and Illustration}]
+  The parameter of a field are its dimension $d$ and placed 
+  \hyperlink{stone}{\emph{stones}}. Therefore, we define for an even $d > 1$ 
+  and \hyperlink{valid}{\emph{validly placed}} \hyperlink{stone}{\emph{stones}}
+  $s_{1}, \dots, s_{k}$ the representation of a field as
+  \begin{minted}[escapeinside=||]{text}
+    {
+      "dimension": |$d$|,
+      "stones": [|$s_0, \dots, s_k$|]
+    }
+  \end{minted}
   \begin{center}
     \begin{tikzpicture}
       \matrix (field) [
@@ -344,16 +344,70 @@ orientation of placed \hyperlink{stone}{\emph{stones}}.
   \end{center}
 \end{mdframed}
 
-\subsubsection{Representation}
-The parameter of a field are its dimension $d$ and placed 
-\hyperlink{stone}{\emph{stones}}. Therefore, we define for $d > 1$ and
-\hyperlink{valid}{\emph{validly placed}} \hyperlink{stone}{\emph{stones}}
-$s_{1}, \dots, s_{k}$ its representation as
-\begin{minted}[escapeinside=||]{text}
-  {
-    "dimension": |$d$|,
-    "stones": [|$s_1, \dots, s_k$|]
-  }
-\end{minted}
+\begin{mdframed}[frametitle = {Example}]
+  \begin{multicols}{2}
+    \inputminted{json}{examples/populated-field.json}
+  \end{multicols}
+  \begin{center}
+    \newcommand{\drawstone}[3][north west lines]{
+      \draw [pattern = #1, pattern color = gray] 
+        (#2.north west) rectangle (#3.south east)
+    }
+    \newcommand{\orientation}[2]{
+      \node [draw, circle, fill = black] at (#1.center) {};
+      \draw [->, line width = 1pt] (#1.center) to (#2.center)
+    }
+    \begin{tikzpicture}
+      \matrix (field) [
+        matrix of nodes,
+        nodes in empty cells,
+        nodes = {
+          draw,
+          dotted,
+          rectangle,
+          anchor = center,
+          minimum height = 1.2cm,
+          minimum width = 1.2cm,
+        }
+        ] {
+           &  &  &  &  &  &  &  &  & \\
+           &  &  &  &  &  &  &  &  & \\
+           &  &  &  &  &  &  &  &  & \\
+           &  &  &  &  &  &  &  &  & \\
+           &  &  &  &  &  &  &  &  & \\
+           &  &  &  &  &  &  &  &  & \\
+           &  &  &  &  &  &  &  &  & \\
+           &  &  &  &  &  &  &  &  & \\
+           &  &  &  &  &  &  &  &  & \\
+           &  &  &  &  &  &  &  &  & \\
+      };
+
+      \drawstone{field-1-1}{field-1-2};
+      \orientation{field-1-2}{field-1-1};
+      \drawstone{field-2-2}{field-3-4};
+      \orientation{field-2-2}{field-2-4};
+      \drawstone[north east lines]{field-2-5}{field-5-5};
+      \orientation{field-5-5}{field-2-5};
+      \drawstone{field-5-6}{field-6-7};
+      \orientation{field-5-6}{field-5-7};
+      \drawstone{field-3-6}{field-3-8};
+      \orientation{field-3-6}{field-3-8};
+
+      \node [circle, fill = green!50] at (field-1-1.north) {};
+      \node [circle, fill = green!50] at (field-1-2.north) {};
+      \node [circle, fill = green!50] at (field-2-2.north) {};
+      \node [circle, fill = green!50] at (field-2-2.west)  {};
+      \node [circle, fill = green!50] at (field-3-4.east)  {};
+      \node [circle, fill = green!50] at (field-3-5.east)  {};
+      \node [circle, fill = green!50] at (field-3-7.north) {};
+      \node [circle, fill = green!50] at (field-3-8.north) {};
+      \node [circle, fill = green!50] at (field-5-5.east)  {};
+      \node [circle, fill = green!50] at (field-6-6.south) {};
+      \node [circle, fill = green!50] at (field-6-7.south) {};
+      \node [circle, fill = green!50] at (field-6-7.east)  {};
+
+    \end{tikzpicture}
+  \end{center}
+\end{mdframed}
 
 \end{document}
