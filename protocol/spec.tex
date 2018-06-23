@@ -1,6 +1,7 @@
 \documentclass{scrartcl}
 
 \usepackage[utf8]{inputenc}
+\usepackage{amsmath}
 \usepackage{csquotes}
 \usepackage{tikz}
 \usepackage{url}
@@ -12,7 +13,9 @@
 \usetikzlibrary{decorations.pathreplacing, angles, quotes, matrix, positioning}
 
 \newcommand{\tushan}{\textsc{Tushan}}
+
 \title{\tushan{}}
+\author{Voltidioten}
 
 \begin{document}
 
@@ -36,22 +39,28 @@ touching the sites of the field (of said player). These notions are specified
 in the following.
 
 \section{Entities}
+
 \subsection{Stone}
+\hypertarget{stone}{}
 The stones are placed by the players onto the field to form the flow and 
 eventually determine the result of the game.
+
 \subsubsection{Description}
 A stone is a rectangular shape with a width $n$ and a height $m$. The notions 
-of width and height are rastered by the cells, hence any stone covers an area
-of $n\times m$ cells. The number of connectors is variable although throughout 
-one game it usually is consistent. There is at least one connector (although 
-for a game with consistent connector numbers stones with one connector enforce 
-trivial results). Stones are described in terms of $n$ and $m$ and their 
-connectors. Additionally, to incorporate their placements in the game we opt to 
-use a representation which contains one specific reference cell (the top left
-corner) and their orientation in terms of the direction the top edge is facing
-(given by one of the four values \enquote{north}, \enquote{east}, 
-\enquote{south} or \enquote{west}). The connectors are identified by indices 
-which move around clockwise (starting by $0$) from the top left covered cell.
+of width and height are rastered by the cells, hence any stone covers an 
+\hyperlink{area}{\emph{area}} of $n\times m$ cells. The number of connectors is 
+variable although throughout one game it usually is consistent. There is at 
+least one connector (although for a game with consistent connector numbers 
+stones with one connector enforce trivial results). Stones are described in 
+terms of $n$ and $m$ and their connectors. Additionally, to incorporate their 
+placements in the game we opt to use a representation which contains one 
+specific reference cell (the top left corner) and their orientation in terms of 
+the direction the top edge is facing (given by one of the four values 
+\mintinline{json}{"north"}, \mintinline{json}{"east"}, 
+\mintinline{json}{"south"} or \mintinline{json}{"west"}). The connectors are 
+identified by indices which move around clockwise (starting by $0$) from the 
+top left covered cell.
+
 \subsubsection{Illustration}
 \begin{mdframed}
   \begin{center}
@@ -116,12 +125,13 @@ distinct values with $0 \leq c_{i} < 2\cdot n + 2\cdot m$ for $0\leq i\leq n$.
     "connectors": [|$c_0, \dots, c_n$|]
   }
 \end{minted}
-If the stone is placed in a \hyperlink{field}{field} this is indicated by the 
-inclusion of an additional object with key \mintinline{json}{"position"}. Here 
-valid ranges of coordinates $x, y \geq 0$ depend on the 
-\hyperlink{field}{field} the stone is placed in while $o$ is always one of the 
-values \mintinline{json}{"north"}, \mintinline{json}{"east"}, 
-\mintinline{json}{"south"} or \mintinline{json}{"west"}.
+If the stone is placed in a \hyperlink{field}{\emph{field}} this is indicated 
+by the inclusion of an additional object with key 
+\mintinline{json}{"position"}. Here valid ranges of coordinates $x, y \geq 0$ 
+depend on the \hyperlink{field}{\emph{field}} the stone is placed in while $o$ 
+is always one of the values \mintinline{json}{"north"}, 
+\mintinline{json}{"east"}, \mintinline{json}{"south"} or 
+\mintinline{json}{"west"}.
 \begin{minted}[escapeinside=||]{text}
   {
     "width": |$n$|,
@@ -134,6 +144,45 @@ values \mintinline{json}{"north"}, \mintinline{json}{"east"},
     }
   }
 \end{minted}
+
+\subsubsection{Associated Notions}
+\begin{mdframed}
+  \hypertarget{area}{\emph{Area of placed stone}} - The area of a placed stone 
+  is defined by all cells it covers, namely all cells with coordinates 
+  \begin{equation*}
+    (a, b) \text{ s. t. }
+    \begin{cases}
+      x\leq b\leq x + m - 1, y - n + 1\leq a\leq y &\text{if }o = \texttt{"north"}\\
+      x\leq a\leq x + n - 1, y\leq b\leq y + m - 1 &\text{if }o = \texttt{"east"}\\
+      x - m + 1\leq b\leq x, y\leq a\leq y + n - 1 &\text{if }o = \texttt{"south"}\\
+      x - n + 1\leq a\leq x, y - m + 1\leq b\leq y &\text{if }o = \texttt{"west"}\\
+    \end{cases}
+  \end{equation*}
+  where $o$ is the orientation of the stone and $x, y$ its respective $x$- and
+  $y$-coordinate.
+\end{mdframed}
+\begin{mdframed}
+  \hypertarget{initial}{\emph{Initial stone}} - A stone is called initial if it 
+  is the only stone placed onto a \hyperlink{field}{\emph{field}}. The 
+  \hyperlink{area}{\emph{area}} of any initial stone must contain one of the 
+  following cells
+  \begin{itemize}
+    \item $(\frac{n}{2}, \frac{n}{2})$,
+    \item $(\frac{n}{2} + 1, \frac{n}{2})$,
+    \item $(\frac{n}{2}, \frac{n}{2} + 1)$,
+    \item $(\frac{n}{2} + 1, \frac{n}{2} + 1)$.
+  \end{itemize}
+\end{mdframed}
+\begin{mdframed}
+  \hypertarget{valid}{\emph{Validity of placed stones}} - A stone is considered 
+  validly placed if its \hyperlink{area}{\emph{area}} is inside the field; that 
+  is if for all $(a, b)$ in its area $1\leq a, b\leq d$ for a 
+  \hyperlink{field}{\emph{field}} with dimension $d$. Furthermore, it holds 
+  that \emph{every} connector is connected either to one of the delimiting 
+  walls, to another connector or an empty cell. Additionally, the stone is 
+  either \hyperlink{initial}{\emph{initial}} or there is at least \emph{one} 
+  connector that is adjacent to another connector.
+\end{mdframed}
 
 \subsubsection{Example}
 We consider the following stone and its encoding
@@ -239,9 +288,12 @@ The field of the game.
 \subsubsection{Description}
 The field is a quadratic collection of cells. Each cell is identified by its 
 coordinates starting with $(0,0)$ at the top left and proceeding to the left 
-with increasing first element and to the bottom with increasing second element.
-The four values \enquote{north}, \enquote{east}, \enquote{south} and 
-\enquote{west} refer to the top, left, bottom and right side respectively.
+with increasing first element and to the bottom with increasing second element,
+this corresponds to a discrete cartesian coordinate system starting at the top
+left growing right- and downwards. The four values \enquote{north}, 
+\enquote{east}, \enquote{south} and \enquote{west} refer to the top, left, 
+bottom and right side respectively and are especially relevant for the 
+orientation of placed \hyperlink{stone}{\emph{stones}}.
 
 \subsubsection{Illustration}
 \begin{mdframed}
@@ -257,10 +309,10 @@ The four values \enquote{north}, \enquote{east}, \enquote{south} and
           rectangle, draw, minimum width = 1.2cm, minimum height = 1.2cm, 
           outer sep = 0pt, inner xsep = 0pt, inner ysep = 0pt, anchor = center
         }] {
-          $(0,0) $ & $(1,0) $ & $\dots $ & $(n,0) $ \\
-          $(0,1) $ & $(1,1) $ & $\dots $ & $(n,1) $ \\
+          $(0,0) $ & $(1,0) $ & $\dots $ & $(d,0) $ \\
+          $(0,1) $ & $(1,1) $ & $\dots $ & $(d,1) $ \\
           $\vdots$ & $\vdots$ & $\ddots$ & $\vdots$ \\
-          $(0,n) $ & $\dots $ & $\dots $ & $(n,n) $ \\
+          $(0,d) $ & $\dots $ & $\dots $ & $(d,d) $ \\
       };
       \draw [ decoration = { brace, raise = 15pt, amplitude = 10pt }, decorate, 
         line width = 1pt ]
@@ -293,5 +345,15 @@ The four values \enquote{north}, \enquote{east}, \enquote{south} and
 \end{mdframed}
 
 \subsubsection{Representation}
+The parameter of a field are its dimension $d$ and placed 
+\hyperlink{stone}{\emph{stones}}. Therefore, we define for $d > 1$ and
+\hyperlink{valid}{\emph{validly placed}} \hyperlink{stone}{\emph{stones}}
+$s_{1}, \dots, s_{k}$ its representation as
+\begin{minted}[escapeinside=||]{text}
+  {
+    "dimension": |$d$|,
+    "stones": [|$s_1, \dots, s_k$|]
+  }
+\end{minted}
 
 \end{document}

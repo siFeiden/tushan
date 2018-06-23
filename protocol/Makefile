@@ -1,3 +1,5 @@
+.PHONY: clean rebuild
+
 PDFNAME=spec.pdf
 PDFPATH=../$(PDFNAME)
 
@@ -13,4 +15,11 @@ $(PDFPATH): $(SRCFILE)
 	mkdir -p $(BUILDDIR)
 	pipenv run $(LATEXCMD) $(LATEXFLAGS) $(SRCFILE)
 	cp $(BUILDDIR)/$(PDFNAME) $(PDFPATH)
+
+clean:
+	rm -r $(BUILDDIR)
+	rm -f $(PDFPATH)
+
+rebuild: clean
+	$(MAKE)
 
