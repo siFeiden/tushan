@@ -1,0 +1,10 @@
+{
+  "width": 3,
+  "heigth": 1,
+  "connectors": [0, 3, 7],
+  "position": {
+    "x": 1,
+    "y": 3,
+    "orientation": "south"
+  }
+}

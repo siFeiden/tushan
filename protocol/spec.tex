@@ -134,10 +134,107 @@ values \mintinline{json}{"north"}, \mintinline{json}{"east"},
     }
   }
 \end{minted}
+
 \subsubsection{Example}
+We consider the following stone and its encoding
+\begin{mdframed}
+  \begin{minipage}{0.5\textwidth}
+    \inputminted{json}{examples/not-placed-stone.json}
+  \end{minipage}%
+  \begin{minipage}{0.5\textwidth}
+    \begin{center}
+      \begin{tikzpicture}
+        \matrix (stone) [
+          matrix of nodes,
+          nodes in empty cells,
+          nodes = {
+            draw, 
+            rectangle,
+            anchor = center,
+            minimum height = 1.2cm,
+            minimum width = 1.2cm,
+          }
+        ] {
+           &  & \\
+        };
+        \node [fill = green!50, circle, draw] (c0) at (stone-1-1.north) {
+          \tiny{0}};
+        \node [fill = red!50, circle, draw]   (c1) at (stone-1-2.north) {
+          \tiny{1}};
+        \node [fill = red!50, circle, draw]   (c2) at (stone-1-3.north) {
+          \tiny{2}};
+        \node [fill = green!50, circle, draw] (c3) at (stone-1-3.east)  {
+          \tiny{3}};
+        \node [fill = red!50, circle, draw]   (c4) at (stone-1-3.south) {
+          \tiny{4}};
+        \node [fill = red!50, circle, draw]   (c5) at (stone-1-2.south) {
+          \tiny{5}};
+        \node [fill = red!50, circle, draw]   (c6) at (stone-1-1.south) {
+          \tiny{6}};
+        \node [fill = green!50, circle, draw] (c7) at (stone-1-1.west)  {
+          \tiny{7}};
+
+        \node [circle, draw, fill] (orientation start) at (stone-1-1.center) {};
+        \draw [->, line width = 1.5pt] (orientation start) to node [above, 
+        xshift=-2pt] 
+          {\tiny orientation} (stone-1-3.center);
+      \end{tikzpicture}
+    \end{center}
+    \tiny{Green circles indicate a connector while red circles mark positions of
+    possible but for this stone not available connectors.}
+ \end{minipage}%
+\end{mdframed}
+
+Additionally, we might encounter this stone after its already placed, e.g.
+\begin{mdframed}
+  \begin{minipage}{0.5\textwidth}
+    \inputminted{json}{examples/placed-stone.json}
+  \end{minipage}%
+  \begin{minipage}{0.5\textwidth}
+    \begin{center}
+      \begin{tikzpicture}
+        \matrix (stone) [
+          matrix of nodes,
+          nodes in empty cells,
+          nodes = {
+            draw, 
+            rectangle,
+            anchor = center,
+            minimum height = 1.2cm,
+            minimum width = 1.2cm,
+          }
+        ] {
+           \\
+           \\
+           \\
+        };
+        \node [fill = green!50, circle, draw] (c0) at (stone-1-1.east)  {
+          \tiny{0}};
+        \node [fill = green!50, circle, draw] (c0) at (stone-3-1.south) {
+          \tiny{3}};
+        \node [fill = green!50, circle, draw] (c0) at (stone-1-1.north) {
+          \tiny{7}};
+
+        \node [circle, draw, fill] (orientation start) at (stone-1-1.center) {};
+        \draw [->, line width = 1.5pt] (orientation start) to (stone-3-1.center);
+
+        \node [left  = 2 of orientation start] (ystart) {$y = 3$};
+        \node [right = 2 of orientation start] (yend)   {};
+
+        \node [above = 2 of orientation start] (xstart) {$x = 1$};
+        \node [below = 3.4 of orientation start] (xend)   {};
+
+        \draw [dashed] (ystart) to (yend);
+        \draw [dashed] (xstart) to (xend);
+      \end{tikzpicture}
+    \end{center}
+  \end{minipage}%
+\end{mdframed}
+
 
 \subsection{Field}
-The \hypertarget{field}{field} of the game.
+\hypertarget{field}{}
+The field of the game.
 
 \subsubsection{Description}
 The field is a quadratic collection of cells. Each cell is identified by its 
