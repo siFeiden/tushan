@@ -33,7 +33,7 @@ every entity of the game is encoded as such.
 \tushan{} is based on the game 
 \href{https://en.wikipedia.org/wiki/Ta\_Y\%C3\%BC}{Ta-Yü}. Two players
 oppose each other on a quadratic field which is separated in cells. Each player 
-is assigned two opposite sites of the field. In turns the player place stones
+is assigned two opposite sides of the field. In turns the player place stones
 which cover cells. The stones are equipped with connectors on its sites. These
 connectors form a flow through the stones. The game ends if there are no valid
 placements of the current stone and every player is awarded the product of two
@@ -148,11 +148,11 @@ around clockwise (starting by $0$) from the top left covered cell.
   \hypertarget{area}{\emph{Area of placed stone}} - The area of a placed stone 
   is defined by all cells it covers, namely all cells with coordinates 
   \begin{equation*}
-    (a, b) \text{ s. t. }
+    (a, b) \text{ s.t. }
     \begin{cases}
-      x\leq b\leq x + m - 1, y - n + 1\leq a\leq y &\text{if }o = \texttt{"north"}\\
+      x\leq a\leq x + m - 1, y - n + 1\leq b\leq y &\text{if }o = \texttt{"north"}\\
       x\leq a\leq x + n - 1, y\leq b\leq y + m - 1 &\text{if }o = \texttt{"east"}\\
-      x - m + 1\leq b\leq x, y\leq a\leq y + n - 1 &\text{if }o = \texttt{"south"}\\
+      x - m + 1\leq a\leq x, y\leq b\leq y + n - 1 &\text{if }o = \texttt{"south"}\\
       x - n + 1\leq a\leq x, y - m + 1\leq b\leq y &\text{if }o = \texttt{"west"}\\
     \end{cases}
   \end{equation*}
@@ -179,7 +179,8 @@ around clockwise (starting by $0$) from the top left covered cell.
   that \emph{every} connector is connected either to one of the delimiting 
   walls, to another connector or an empty cell. Additionally, the stone is 
   either \hyperlink{initial}{\emph{initial}} or there is at least \emph{one} 
-  connector that is adjacent to another connector.
+  connector that is adjacent to another connector and the the new stone does
+  not intersect any other stone already validly placed on the field.
 \end{mdframed}
 
 \begin{mdframed}[frametitle = {Example}]
@@ -240,7 +241,7 @@ around clockwise (starting by $0$) from the top left covered cell.
           matrix of nodes,
           nodes in empty cells,
           nodes = {
-            draw, 
+            draw,
             rectangle,
             anchor = center,
             minimum height = 1.2cm,
