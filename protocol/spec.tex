@@ -163,12 +163,12 @@ around clockwise (starting by $0$) from the top left covered cell.
   \hypertarget{initial}{\emph{Initial stone}} - A stone is called initial if it 
   is the only stone placed onto a \hyperlink{field}{\emph{field}}. The 
   \hyperlink{area}{\emph{area}} of any initial stone must contain one of the 
-  following cells
+  following cells in a field with even dimension $d$:
   \begin{itemize}
-    \item $(\frac{n}{2}, \frac{n}{2})$,
-    \item $(\frac{n}{2} + 1, \frac{n}{2})$,
-    \item $(\frac{n}{2}, \frac{n}{2} + 1)$,
-    \item $(\frac{n}{2} + 1, \frac{n}{2} + 1)$.
+    \item $(\frac{d}{2}, \frac{d}{2})$,
+    \item $(\frac{d}{2} - 1, \frac{d}{2})$,
+    \item $(\frac{d}{2}, \frac{d}{2} - 1)$,
+    \item $(\frac{d}{2} - 1, \frac{d}{2} - 1)$.
   \end{itemize}
 \end{mdframed}
 \begin{mdframed}
@@ -307,13 +307,13 @@ for the orientation of placed \hyperlink{stone}{\emph{stones}}.
         nodes in empty cells,
         inner xsep = 0pt,
         nodes = {
-          rectangle, draw, minimum width = 1.2cm, minimum height = 1.2cm, 
+          rectangle, draw, minimum width = 2cm, minimum height = 2cm,
           outer sep = 0pt, inner xsep = 0pt, inner ysep = 0pt, anchor = center
         }] {
-          $(0,0) $ & $(1,0) $ & $\dots $ & $(d,0) $ \\
-          $(0,1) $ & $(1,1) $ & $\dots $ & $(d,1) $ \\
+          $(0,0) $ & $(1,0) $ & $\dots $ & $(d\! -\! 1,0) $ \\
+          $(0,1) $ & $(1,1) $ & $\dots $ & $(d\! -\! 1,1) $ \\
           $\vdots$ & $\vdots$ & $\ddots$ & $\vdots$ \\
-          $(0,d) $ & $\dots $ & $\dots $ & $(d,d) $ \\
+          $(0,d\! -\! 1) $ & $\dots $ & $\dots $ & $(d\! -\! 1,d\! -\! 1) $ \\
       };
       \draw [ decoration = { brace, raise = 15pt, amplitude = 10pt }, decorate, 
         line width = 1pt ]
