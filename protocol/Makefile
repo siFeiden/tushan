@@ -13,11 +13,11 @@ LATEXFLAGS=-shell-escape -output-directory=$(BUILDDIR) -interaction=nonstopmode 
 
 $(PDFPATH): $(SRCFILE)
 	mkdir -p $(BUILDDIR)
-	pipenv run $(LATEXCMD) $(LATEXFLAGS) $(SRCFILE)
+	$(LATEXCMD) $(LATEXFLAGS) $(SRCFILE)
 	cp $(BUILDDIR)/$(PDFNAME) $(PDFPATH)
 
 watch:
-	pipenv run $(LATEXCMD) -pvc $(LATEXFLAGS) $(SRCFILE)
+	$(LATEXCMD) -pvc $(LATEXFLAGS) $(SRCFILE)
 
 clean:
 	rm -r $(BUILDDIR)
