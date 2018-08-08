@@ -288,14 +288,28 @@ the top, left, bottom and right side respectively and are especially relevant
 for the orientation of placed \hyperlink{stone}{\emph{stones}}.
 
 \begin{mdframed}[frametitle = {Representation and Illustration}]
-  The parameter of a field are its dimension $d$ and placed 
-  \hyperlink{stone}{\emph{stones}}. Therefore, we define for an even $d > 1$ 
-  and \hyperlink{valid}{\emph{validly placed}} \hyperlink{stone}{\emph{stones}}
+  The parameters of a field are its dimension $d$ which is always even, placed 
+  \hyperlink{stone}{\emph{stones}} and each player's objectives, that is which
+  sides she is supposed to connect. To allow for extensibility regarding the
+  number $k$ of players and game modes, we use a field
+  % \mintinline{json}{"objectives"} that is a mapping from players
+  % $p_1, \dots, p_k$ to a list of sides $h^j_1, \dots, h^j_{i_j}$ that the
+  \mintinline{json}{"objectives"} that is a mapping from player $p_j$ to
+  a list of sides $h^j_1, \dots, h^j_{i_j}$ that she should connect.
+  Here, $1 \leq j \leq k$. The standard game has $k = i_k = 2$ and the
+  lists for each player only contain opposing sides of the field.
+  Therefore, we define for an even $d > 1$ and
+  \hyperlink{valid}{\emph{validly placed}} \hyperlink{stone}{\emph{stones}}
   $s_{1}, \dots, s_{k}$ the representation of a field as
   \begin{minted}[escapeinside=||]{text}
     {
       "dimension": |$d$|,
-      "stones": [|$s_0, \dots, s_k$|]
+      "stones": [|$s_0, \dots, s_k$|],
+      "objectives": {
+        "|$p_1$|": [|$h^1_1, \dots, h^1_{i_1}$|],
+         |$\vdots$|
+        "|$p_k$|": [|$h^k_1, \dots, h^k_{i_k}$|]
+      }
     }
   \end{minted}
   \begin{center}
@@ -407,6 +421,10 @@ for the orientation of placed \hyperlink{stone}{\emph{stones}}.
       \node [circle, fill = green!50] at (field-6-7.south) {};
       \node [circle, fill = green!50] at (field-6-7.east)  {};
 
+      \node [above = 0.1 of field] {Player $A$};
+      \node [right = 0.1 of field, label = {[rotate = -90] {Player $B$}}] {};
+      \node [below = 0.1 of field, label = {[rotate = 180] {Player $A$}}] {};
+      \node [left  = 0.1 of field, label = {[rotate = 90]  {Player $B$}}] {};
     \end{tikzpicture}
   \end{center}
 \end{mdframed}

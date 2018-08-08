@@ -1,5 +1,9 @@
 {
   "dimension": 10,
+  "objectives": {
+    "Player A": ["north", "south"],
+    "Player B": ["east", "west"]
+  },
   "stones": [
     {
       "width": 2,
