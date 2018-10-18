@@ -1,7 +1,7 @@
 import argparse
 import asyncio as aio
 
-from net.server import Server, SpawnReadersListener
+from net.server import *
 from eventing.event_queue import EventQueue
 
 
@@ -22,6 +22,7 @@ class Tushan(object):
     server = Server(event_queue, options.host, options.port)
 
     event_queue.register_class(SpawnReadersListener())
+    event_queue.register_class(Broadcaster())
 
     await server.start()
     await event_queue.run()

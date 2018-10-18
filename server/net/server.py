@@ -69,3 +69,24 @@ class SpawnReadersListener(object):
   def __call__(self, event):
     reader = Reader(event.id, event.event_queue, event.reader)
     aio.create_task(reader.run())
+
+
+class Broadcaster(object):
+  events = [
+    ClientConnectedEvent,
+    MessageReceivedEvent,
+    ClientDisconnectedEvent
+  ]
+
+  def __init__(self):
+    self.clients = {}
+
+  async def __call__(self, event):
+    if isinstance(event, ClientConnectedEvent):
+      self.clients[event.id] = event.writer
+    elif isinstance(event, MessageReceivedEvent):
+      for client in self.clients.values():
+        client.write(event.payload.encode('utf-8'))
+        await client.drain()
+    elif isinstance(event, ClientDisconnectedEvent):
+      self.clients.pop(event.id)
