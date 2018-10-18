@@ -20,13 +20,9 @@ class EventQueue(object):
   def __init__(self):
     self.queue = aio.Queue()
     self.handlers = defaultdict(list)
-    self.any_handlers = []
 
   def register(self, event_class, handler):
     self.handlers[event_class].append(handler)
-
-  def register_for_all(self, handler):
-    self.any_handlers.append(handler)
 
   def register_class(self, clss):
     try:
@@ -46,9 +42,6 @@ class EventQueue(object):
 
       event_class = type(event)
       for handler in self.handlers[event_class]:
-        await self.fire_event(event, handler)
-
-      for handler in self.any_handlers:
         await self.fire_event(event, handler)
 
       self.queue.task_done()
