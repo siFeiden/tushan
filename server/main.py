@@ -2,7 +2,7 @@ import argparse
 import asyncio as aio
 
 from net.server import *
-from eventing.event_queue import EventQueue
+from eventing.event_queue import EventQueue, HandlerFailedEvent
 
 
 class Tushan(object):
@@ -23,6 +23,10 @@ class Tushan(object):
 
     event_queue.register_class(SpawnReadersListener())
     event_queue.register_class(Broadcaster())
+    event_queue.register(ClientConnectedEvent, lambda e: print('client connected'))
+    event_queue.register(ClientDisconnectedEvent, lambda e: print('client disconnected'))
+    event_queue.register(MessageReceivedEvent, lambda e: print(e.payload, end=''))
+    event_queue.register(HandlerFailedEvent, lambda e: print('ERROR:', e.exception))
 
     await server.start()
     await event_queue.run()
