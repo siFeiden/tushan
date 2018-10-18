@@ -10,10 +10,14 @@ class ClientConnectedEvent(Event):
     self.writer = writer
 
 
+class ClientDisconnectedEvent(Event):
+  pass
+
+
 class MessageReceivedEvent(Event):
-  def __init__(self, line):
+  def __init__(self, payload):
     super().__init__()
-    self.line = line
+    self.payload = payload
 
 
 class Server(object):
@@ -42,8 +46,14 @@ class Reader(object):
   async def run(self):
     while True:
       line = await self.reader.readline()
-      event = MessageReceivedEvent(line)
+      if self.reader.at_eof():
+        break # drops last partial message
+
+      event = MessageReceivedEvent(line.decode('utf-8'))
       await self.event_queue.publish(event)
+
+    event = ClientDisconnectedEvent()
+    await self.event_queue.publish(event)
 
 
 class SpawnReadersListener(object):
