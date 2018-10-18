@@ -1,7 +1,7 @@
 import asyncio as aio
-import datetime
 
 from collections import defaultdict
+from datetime import datetime
 
 
 class Event(object):
@@ -41,9 +41,7 @@ class EventQueue(object):
 
   async def run(self):
     while True:
-      print('await queue')
       event = await self.queue.get()
-      print('got event')
       event.event_queue = self
 
       event_class = type(event)

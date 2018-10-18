@@ -43,7 +43,7 @@ class Reader(object):
     while True:
       line = await self.reader.readline()
       event = MessageReceivedEvent(line)
-      self.event_queue.publish(event)
+      await self.event_queue.publish(event)
 
 
 class SpawnReadersListener(object):
