@@ -11,9 +11,10 @@ class Event(object):
 
 
 class HandlerFailedEvent(object):
-  def __init__(self, handler):
+  def __init__(self, failed_handler, exception):
     super().__init__()
     self.failed_handler = failed_handler
+    self.exception = exception
 
 
 class EventQueue(object):
@@ -54,5 +55,5 @@ class EventQueue(object):
         # event handler may be async
         if aio.iscoroutine(result):
           await result
-      except:
-        await self.publish(HandlerFailedEvent(handler))
+      except Exception as e:
+        await self.publish(HandlerFailedEvent(handler, e))
