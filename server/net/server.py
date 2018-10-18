@@ -1,22 +1,27 @@
 import asyncio as aio
+import uuid
 
 from eventing.event_queue import Event
 
 
 class ClientConnectedEvent(Event):
-  def __init__(self, reader, writer):
+  def __init__(self, id, reader, writer):
     super().__init__()
+    self.id = id
     self.reader = reader
     self.writer = writer
 
 
 class ClientDisconnectedEvent(Event):
-  pass
+  def __init__(self, id):
+    super().__init__()
+    self.id = id
 
 
 class MessageReceivedEvent(Event):
-  def __init__(self, payload):
+  def __init__(self, id, payload):
     super().__init__()
+    self.id = id
     self.payload = payload
 
 
@@ -27,7 +32,8 @@ class Server(object):
     self.port = port
 
   async def client_connected(self, reader, writer):
-    event = ClientConnectedEvent(reader, writer)
+    client_id = uuid.uuid4()
+    event = ClientConnectedEvent(client_id, reader, writer)
     await self.event_queue.publish(event)
 
   async def start(self):
@@ -39,7 +45,8 @@ class Server(object):
 
 
 class Reader(object):
-  def __init__(self, event_queue, reader):
+  def __init__(self, id, event_queue, reader):
+    self.id = id
     self.event_queue = event_queue
     self.reader = reader
 
@@ -49,10 +56,10 @@ class Reader(object):
       if self.reader.at_eof():
         break # drops last partial message
 
-      event = MessageReceivedEvent(line.decode('utf-8'))
+      event = MessageReceivedEvent(self.id, line.decode('utf-8'))
       await self.event_queue.publish(event)
 
-    event = ClientDisconnectedEvent()
+    event = ClientDisconnectedEvent(self.id)
     await self.event_queue.publish(event)
 
 
@@ -60,5 +67,5 @@ class SpawnReadersListener(object):
   events = ClientConnectedEvent
 
   def __call__(self, event):
-    reader = Reader(event.event_queue, event.reader)
+    reader = Reader(event.id, event.event_queue, event.reader)
     aio.create_task(reader.run())
