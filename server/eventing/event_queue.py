@@ -17,8 +17,8 @@ class HandlerFailedEvent(object):
 
 
 class EventQueue(object):
-  def __init__(self, loop):
-    self.queue = aio.Queue(loop=loop)
+  def __init__(self):
+    self.queue = aio.Queue()
     self.handlers = defaultdict(list)
     self.any_handlers = []
 

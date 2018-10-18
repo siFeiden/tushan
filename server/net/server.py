@@ -17,11 +17,10 @@ class MessageReceivedEvent(Event):
 
 
 class Server(object):
-  def __init__(self, event_queue, host, port, loop):
+  def __init__(self, event_queue, host, port):
     self.event_queue = event_queue
     self.host = host
     self.port = port
-    self.loop = loop
 
   async def client_connected(self, reader, writer):
     event = ClientConnectedEvent(reader, writer)
@@ -31,8 +30,7 @@ class Server(object):
     await aio.start_server(
       self.client_connected,
       self.host,
-      self.port,
-      loop=self.loop
+      self.port
     )
 
 
