@@ -21,6 +21,10 @@ class Piece(object):
     self.height = height
     self.connectors = connectors
 
+    assert width > 0, 'width must be positive'
+    assert height > 0, 'height must be positive'
+    assert all(0 <= c < 2*width+2*height for c in connectors), 'invalid connector'
+
   @staticmethod
   def official_connectors():
     connectors = [
@@ -44,6 +48,8 @@ class PlacedPiece(object):
     self.orientation = orientation
     self.player = player
 
+    assert Orientation(orientation), 'invalid orientation'
+
   def other_corner(self):
     w = self.piece.width - 1
     h = self.piece.height - 1
@@ -57,7 +63,7 @@ class PlacedPiece(object):
     elif self.orientation == Orientation.West:
       return (x - h, y + w)
 
-    raise ValueError('Invalid orientation given')
+    assert Orientation(self.orientation), 'invalid orientation'
 
   def collides(self, other):
     area = Rect.of(self.x, self.y, *self.other_corner())
@@ -69,16 +75,24 @@ class PlacedPiece(object):
     other_docking_points = other.docking_points()
     commmon_docking_points = docking_points.keys() & other_docking_points.keys()
 
-    return all(docking_points[c] == other_docking_points[c] for connector in commmon_docking_points)
+    assert len(docking_points) > 0, 'no docking points'
+    assert len(other_docking_points) > 0, 'no docking other points'
+
+    if len(commmon_docking_points) == 0:
+      return False
+
+    return all(docking_points[p] == other_docking_points[p] for p in commmon_docking_points)
 
   def docking_points(self):
-    docking_points = []
+    docking_points = {}
     n = 0
 
     x = self.x + 0.5
     y = self.y
     w = self.piece.width - 1
     h = self.piece.height - 1
+
+    # TODO consider orientation
 
     for i in range(self.piece.w):
       is_connector = n in self.piece.connectors
@@ -134,7 +148,14 @@ class Board(object):
     center = size // 2
     self.place(initial_piece, center, center - 1, Orientation.South, None)
 
+    assert size > 0, 'field size must be positive'
+    assert size % 2 == 0, 'field size not even'
+
   def place(self, piece, x, y, orientation, player):
+    assert 0 <= x < self.size, 'piece placed outside the board'
+    assert 0 <= y < self.size, 'piece placed outside the board'
+    assert Orientation(orientation), 'invalid orientation'
+
     placed_piece = PlacedPiece(piece, x, y, orientation, player)
 
     if not self.contains(placed_piece):
@@ -162,7 +183,7 @@ class Board(object):
     return any(piece.collides(placed) for placed in self.piece)
 
   def connects_one(self, piece):
-    return 1 == sum(piece.connects_to(placed) for placed in self.piece)
+    return any(piece.connects_to(placed) for placed in self.piece)
 
 
 class Player(object):
@@ -175,4 +196,5 @@ class Game(object):
     self.players = deque(players)
     self.objectives = objectives
 
-
+    assert len(players) >= 2, 'game needs at least two players'
+    assert all(len(objectives[p]) == 2 for p in players), 'invalid player objectives'
