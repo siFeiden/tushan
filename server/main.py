@@ -21,8 +21,6 @@ class Tushan(object):
     event_queue = EventQueue()
     server = Server(event_queue, options.host, options.port)
 
-    event_queue.register_class(SpawnReadersListener())
-    event_queue.register_class(Broadcaster())
     event_queue.register(ClientConnectedEvent, lambda e: print('client connected'))
     event_queue.register(ClientDisconnectedEvent, lambda e: print('client disconnected'))
     event_queue.register(MessageReceivedEvent, lambda e: print(e.payload, end=''))

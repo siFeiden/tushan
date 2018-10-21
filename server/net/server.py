@@ -37,6 +37,9 @@ class Server(object):
     await self.event_queue.publish(event)
 
   async def start(self):
+    self.event_queue.register_class(SpawnReadersListener())
+    self.event_queue.register_class(Broadcaster())
+
     await aio.start_server(
       self.client_connected,
       self.host,
