@@ -30,12 +30,6 @@ class PieceTest(unittest.TestCase):
     piece5 = Piece(1, 1, [1, 2])
     self.placed_piece5 = PlacedPiece(piece5, 5, 1, Orientation.South, None)
 
-    1 - 2
-    1 / 3
-    2 / 3
-    3 - 4
-    5 / 3
-    5 - 4
 
   def test_p1_connects_to_p2(self):
     self.assertTrue(self.placed_piece1.connects_to(self.placed_piece2))

@@ -1,7 +1,7 @@
 from collections import deque
 from enum import Enum
 
-from _shapes import Point, Rect
+from ._shapes import Point, Rect
 
 
 class Orientation(Enum):
@@ -71,17 +71,19 @@ class PlacedPiece(object):
     return area.overlaps(other_area)
 
   def connects_to(self, other):
-    docking_points = self.docking_points()
-    other_docking_points = other.docking_points()
-    commmon_docking_points = docking_points.keys() & other_docking_points.keys()
+    docks = self.docking_points()
+    other_docks = other.docking_points()
+    commmon_docks = docks.keys() & other_docks.keys()
 
-    assert len(docking_points) > 0, 'no docking points'
-    assert len(other_docking_points) > 0, 'no docking other points'
+    assert len(docks) > 0, 'no docking points'
+    assert len(other_docks) > 0, 'no other docking points'
 
-    if len(commmon_docking_points) == 0:
+    if len(commmon_docks) == 0:
       return False
 
-    return all(docking_points[p] == other_docking_points[p] for p in commmon_docking_points)
+    are_docks_compatible = all(docks[p] == other_docks[p] for p in commmon_docks)
+    has_connector_match = any(docks[p] and other_docks[p] for p in commmon_docks)
+    return are_docks_compatible and has_connector_match
 
   def docking_points(self):
     docking_points = {}
@@ -89,39 +91,39 @@ class PlacedPiece(object):
 
     x = self.x + 0.5
     y = self.y
-    w = self.piece.width - 1
-    h = self.piece.height - 1
+    w = self.piece.width
+    h = self.piece.height
 
     # TODO consider orientation
 
-    for i in range(self.piece.w):
+    for i in range(w):
       is_connector = n in self.piece.connectors
       docking_points[(x, y)] = is_connector
       x += 1
       n += 1
 
-    x += 0.5
+    x -= 0.5
     y += 0.5
 
-    for i in range(self.piece.h):
+    for i in range(h):
       is_connector = n in self.piece.connectors
       docking_points[(x, y)] = is_connector
       y += 1
       n += 1
 
     x -= 0.5
-    y += 0.5
+    y -= 0.5
 
-    for i in range(self.piece.w):
+    for i in range(w):
       is_connector = n in self.piece.connectors
       docking_points[(x, y)] = is_connector
       x -= 1
       n += 1
 
-    x -= 0.5
+    x += 0.5
     y -= 0.5
 
-    for i in range(self.piece.h):
+    for i in range(h):
       is_connector = n in self.piece.connectors
       docking_points[(x, y)] = is_connector
       y -= 1
