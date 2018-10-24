@@ -87,35 +87,49 @@ class PlacedPiece(object):
 
   def docking_points(self):
     docking_points = {}
+    origin = Point(self.x, self.y)
     w = self.piece.width
     h = self.piece.height
-    e1 = Point(1.0, 0.0)
-    e2 = Point(0.0, 1.0)
+    e1, e2 = self.units_for_orientation()
 
-    # TODO consider orientation
     is_connector = (n in self.piece.connectors for n in range(2*w*2*h))
 
     # top edge
-    top_left = Point(self.x + 0.5, self.y)
+    top_left = origin + e1 * 0.5
     for (x, y) in top_left.ray(e1, steps=w):
       docking_points[(x, y)] = next(is_connector)
 
     # right edge
-    top_right = Point(self.x + w, self.y + 0.5)
+    top_right = origin + e1 * w + e2 * 0.5
     for (x, y) in top_right.ray(e2, steps=h):
       docking_points[(x, y)] = next(is_connector)
 
     # bottom edge, right to left
-    bottom_right = Point(self.x + w - 0.5, self.y + h)
+    bottom_right = origin + e1 * w + e2 * h - e1 * 0.5
     for (x, y) in bottom_right.ray(-e1, steps=w):
       docking_points[(x, y)] = next(is_connector)
 
     # left edge, bottom to top
-    bottom_left = Point(self.x, self.y + h - 0.5)
+    bottom_left = origin + e2 * h - e2 * 0.5
     for (x, y) in bottom_left.ray(-e2, steps=h):
       docking_points[(x, y)] = next(is_connector)
 
     return docking_points
+
+  def units_for_orientation(self):
+    ex = Point(1, 0)
+    ey = Point(0, 1)
+
+    if self.orientation == Orientation.North:
+      return (-ex, -ey)
+    elif self.orientation == Orientation.East:
+      return (-ey, ex)
+    elif self.orientation == Orientation.South:
+      return (ex, ey)
+    elif self.orientation == Orientation.West:
+      return (ey, -ex)
+
+    assert Orientation(self.orientation), 'invalid orientation'
 
 
 class InvalidPlacementError(Exception):
