@@ -87,47 +87,33 @@ class PlacedPiece(object):
 
   def docking_points(self):
     docking_points = {}
-    n = 0
-
-    x = self.x + 0.5
-    y = self.y
     w = self.piece.width
     h = self.piece.height
+    e1 = Point(1.0, 0.0)
+    e2 = Point(0.0, 1.0)
 
     # TODO consider orientation
+    is_connector = (n in self.piece.connectors for n in range(2*w*2*h))
 
-    for i in range(w):
-      is_connector = n in self.piece.connectors
-      docking_points[(x, y)] = is_connector
-      x += 1
-      n += 1
+    # top edge
+    top_left = Point(self.x + 0.5, self.y)
+    for (x, y) in top_left.ray(e1, steps=w):
+      docking_points[(x, y)] = next(is_connector)
 
-    x -= 0.5
-    y += 0.5
+    # right edge
+    top_right = Point(self.x + w, self.y + 0.5)
+    for (x, y) in top_right.ray(e2, steps=h):
+      docking_points[(x, y)] = next(is_connector)
 
-    for i in range(h):
-      is_connector = n in self.piece.connectors
-      docking_points[(x, y)] = is_connector
-      y += 1
-      n += 1
+    # bottom edge, right to left
+    bottom_right = Point(self.x + w - 0.5, self.y + h)
+    for (x, y) in bottom_right.ray(-e1, steps=w):
+      docking_points[(x, y)] = next(is_connector)
 
-    x -= 0.5
-    y -= 0.5
-
-    for i in range(w):
-      is_connector = n in self.piece.connectors
-      docking_points[(x, y)] = is_connector
-      x -= 1
-      n += 1
-
-    x += 0.5
-    y -= 0.5
-
-    for i in range(h):
-      is_connector = n in self.piece.connectors
-      docking_points[(x, y)] = is_connector
-      y -= 1
-      n += 1
+    # left edge, bottom to top
+    bottom_left = Point(self.x, self.y + h - 0.5)
+    for (x, y) in bottom_left.ray(-e2, steps=h):
+      docking_points[(x, y)] = next(is_connector)
 
     return docking_points
 

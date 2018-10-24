@@ -50,11 +50,19 @@ class Point:
         """Point(x1/x2, y1/y2)"""
         return Point(self.x/scalar, self.y/scalar)
 
+    def __neg__(self):
+        """Point(-x1, -y1)"""
+        return Point(-self.x, -self.y)
+
     def __str__(self):
         return "(%s, %s)" % (self.x, self.y)
 
     def __repr__(self):
         return "%s(%r, %r)" % (self.__class__.__name__, self.x, self.y)
+
+    def __iter__(self): # For easy tuple unpacking
+        yield self.x
+        yield self.y
 
     def length(self):
         return math.sqrt(self.x**2 + self.y**2)
@@ -80,6 +88,10 @@ class Point:
         """Convert co-ordinate values to floats."""
         self.x = float(self.x)
         self.y = float(self.y)
+
+    def ray(self, direction, *, steps=1):
+        for n in range(steps):
+          yield self + direction * n
 
     def move_to(self, x, y):
         """Reset x & y coordinates."""

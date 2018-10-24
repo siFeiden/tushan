@@ -30,6 +30,46 @@ class PieceTest(unittest.TestCase):
     piece5 = Piece(1, 1, [1, 2])
     self.placed_piece5 = PlacedPiece(piece5, 5, 1, Orientation.South, None)
 
+  def test_p1_docking_points(self):
+    expected_docks = {
+      (1.5, 1.0): False,
+      (2.0, 1.5): True,
+      (2.0, 2.5): True,
+      (2.0, 3.5): True,
+      (1.5, 4.0): False,
+      (1.0, 3.5): False,
+      (1.0, 2.5): False,
+      (1.0, 1.5): False,
+    }
+
+    docks = self.placed_piece1.docking_points()
+    self.assertDictEqual(expected_docks, docks)
+
+  def test_p4_docking_points(self):
+    expected_docks = {
+      (5.5, 2.0): True,
+      (6.5, 2.0): False,
+      (7.0, 2.5): False,
+      (7.0, 3.5): False,
+      (6.5, 4.0): False,
+      (5.5, 4.0): False,
+      (5.0, 3.5): True,
+      (5.0, 2.5): True,
+    }
+
+    docks = self.placed_piece4.docking_points()
+    self.assertDictEqual(expected_docks, docks)
+
+  def test_p5_docking_points(self):
+    expected_docks = {
+      (5.5, 1.0): False,
+      (6.0, 1.5): True,
+      (5.5, 2.0): True,
+      (5.0, 1.5): False,
+    }
+
+    docks = self.placed_piece5.docking_points()
+    self.assertDictEqual(expected_docks, docks)
 
   def test_p1_connects_to_p2(self):
     self.assertTrue(self.placed_piece1.connects_to(self.placed_piece2))
