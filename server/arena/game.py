@@ -12,7 +12,7 @@ class Orientation(Enum):
 
 
 class Piece(object):
-  """A piece before it is placed on the board
+  """A piece before it is placed on the board.
 
   Its implicit orientation is South.
   """
@@ -50,27 +50,23 @@ class PlacedPiece(object):
 
     assert Orientation(orientation), 'invalid orientation'
 
-  def other_corner(self):
-    w = self.piece.width - 1
-    h = self.piece.height - 1
+  def opposite_corner(self):
+    """Return the corner opposite to the origin (x, y) of the piece's rectangle."""
+    w = self.piece.width
+    h = self.piece.height
+    origin = Point(self.x, self.y)
+    e1, e2 = self.units_for_orientation()
 
-    if self.orientation == Orientation.North:
-      return (x - w, y - h)
-    elif self.orientation == Orientation.East:
-      return (x + h, y - w)
-    elif self.orientation == Orientation.South:
-      return (x + w, y + h)
-    elif self.orientation == Orientation.West:
-      return (x - h, y + w)
-
-    assert Orientation(self.orientation), 'invalid orientation'
+    return origin + e1 * w + e2 * h
 
   def collides(self, other):
-    area = Rect.of(self.x, self.y, *self.other_corner())
-    other_area = Rect.of(other.x, other.y, *other.other_corner())
+    """Check if this piece collides with/ overlaps another piece."""
+    area = Rect.of(self.x, self.y, *self.opposite_corner())
+    other_area = Rect.of(other.x, other.y, *other.opposite_corner())
     return area.overlaps(other_area)
 
   def connects_to(self, other):
+    """Check if this piece connects to another piece."""
     docks = self.docking_points()
     other_docks = other.docking_points()
     commmon_docks = docks.keys() & other_docks.keys()
@@ -86,6 +82,11 @@ class PlacedPiece(object):
     return are_docks_compatible and has_connector_match
 
   def docking_points(self):
+    """Calculate the points where this piece can connect to another piece.
+
+    Returns a map from points to bool: the map's value is True iff the
+    point is a docking point.
+    """
     docking_points = {}
     origin = Point(self.x, self.y)
     w = self.piece.width
@@ -117,6 +118,16 @@ class PlacedPiece(object):
     return docking_points
 
   def units_for_orientation(self):
+    """Return the unit vectors for this piece's area according to the current orientation.
+
+    The first vector points towards the second point of the rectangle
+    in clockwise direction. The first vector points towards the fourth
+    point of the rectangle in clockwise direction:
+    --> e1
+    x--+--+ | e2
+    |  |  | v
+    +--+--+
+    """
     ex = Point(1, 0)
     ey = Point(0, 1)
 
@@ -146,46 +157,59 @@ class Board(object):
   def __init__(self, size, initial_piece):
     self.size = size
     self.pieces = []
-
-    center = size // 2
-    self.place(initial_piece, center, center - 1, Orientation.South, None)
+    self.place_initial(initial_piece)
 
     assert size > 0, 'field size must be positive'
     assert size % 2 == 0, 'field size not even'
 
-  def place(self, piece, x, y, orientation, player):
-    assert 0 <= x < self.size, 'piece placed outside the board'
-    assert 0 <= y < self.size, 'piece placed outside the board'
-    assert Orientation(orientation), 'invalid orientation'
+  def place_initial(self, piece):
+    """Place the first stone on the board.
 
-    placed_piece = PlacedPiece(piece, x, y, orientation, player)
+    Collisions and connections with other stones are not checked
+    """
+    center = self.size // 2 - 1
+    placed_piece = PlacedPiece(piece, center, center, Orientation.South, None)
 
     if not self.contains(placed_piece):
-      raise InvalidPlacementError()
-
-    if self.collides_any(placed_piece):
-      raise InvalidPlacementError()
-
-    if not self.connects_one(placed_piece):
       raise InvalidPlacementError()
 
     self.pieces.append(placed_piece)
     return placed_piece
 
+  def place(self, piece, x, y, orientation, player):
+    """Place a stone on the board."""
+    assert Orientation(orientation), 'invalid orientation'
+
+    placed_piece = PlacedPiece(piece, x, y, orientation, player)
+
+    if not self.contains(placed_piece):
+      raise InvalidPlacementError('Piece not in board')
+
+    if self.collides_any(placed_piece):
+      raise InvalidPlacementError('Pieces overlap')
+
+    if not self.connects_one(placed_piece):
+      raise InvalidPlacementError('Piece does not connect')
+
+    self.pieces.append(placed_piece)
+    return placed_piece
+
   def contains(self, piece):
-    s = self.size - 1
-    board_area = Rect.of(0, 0, s, s)
+    """Check if the board's area contains piece."""
+    board_area = Rect.of(0, 0, self.size, self.size)
 
     corner1 = Point(piece.x, piece.y)
-    corner2 = Point(*piece.other_corner())
+    corner2 = piece.opposite_corner()
 
     return board_area.contains(corner1) and board_area.contains(corner2)
 
   def collides_any(self, piece):
-    return any(piece.collides(placed) for placed in self.piece)
+    """Check if piece collides with any piece on the board."""
+    return any(piece.collides(placed) for placed in self.pieces)
 
   def connects_one(self, piece):
-    return any(piece.connects_to(placed) for placed in self.piece)
+    """Check if piece connects to any piece on the board."""
+    return any(piece.connects_to(placed) for placed in self.pieces)
 
 
 class Player(object):
