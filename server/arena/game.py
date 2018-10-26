@@ -1,7 +1,24 @@
 from collections import deque
 from enum import Enum
+from random import shuffle
 
 from ._shapes import Point, Rect
+
+
+class GameException(Exception):
+  pass
+
+
+class InvalidPlacementError(GameException):
+  pass
+
+
+class NotPlayersTurnError(GameException):
+  pass
+
+
+class WrongPiecePlayedError(GameException):
+  pass
 
 
 class Orientation(Enum):
@@ -26,7 +43,7 @@ class Piece(object):
     assert all(0 <= c < 2*width+2*height for c in connectors), 'invalid connector'
 
   @staticmethod
-  def official_connectors():
+  def official_pieces():
     connectors = [
       [0, 3, 4], [1, 6, 7], [3, 5, 6], [0, 2, 3],
       [1, 3, 6], [0, 1, 7], [1, 4, 5], [3, 4, 7],
@@ -37,7 +54,7 @@ class Piece(object):
       [0, 1, 6], [1, 2, 5], [4, 5, 7], [0, 6, 7],
     ]
 
-    return (Piece(1, 3, c) for c in connectors)
+    return [Piece(1, 3, c) for c in connectors]
 
 
 class PlacedPiece(object):
@@ -143,10 +160,6 @@ class PlacedPiece(object):
     assert Orientation(self.orientation), 'invalid orientation'
 
 
-class InvalidPlacementError(Exception):
-  pass
-
-
 class Board(object):
   class Side(Enum):
     North = 'north'
@@ -211,6 +224,9 @@ class Board(object):
     """Check if piece connects to any piece on the board."""
     return any(piece.connects_to(placed) for placed in self.pieces)
 
+  def valid_placements(self, piece):
+    yield from ValidPlacements(self, piece)
+
 
 class Player(object):
   def __init__(self, id):
@@ -218,9 +234,40 @@ class Player(object):
 
 
 class Game(object):
-  def __init__(self, players, objectives):
+  def __init__(self, board, players, objectives, pieces):
+    self.board = board
     self.players = deque(players)
     self.objectives = objectives
+    self.pieces = deque(pieces)
 
     assert len(players) >= 2, 'game needs at least two players'
+    assert all(p in objectives for p in players), 'some player without objective'
     assert all(len(objectives[p]) == 2 for p in players), 'invalid player objectives'
+
+  @property
+  def current_player(self):
+    return self.players[0]
+
+  @property
+  def current_piece(self):
+    return self.pieces[0]
+
+  def make_turn(self, player, piece, x, y, orientation):
+    if player != self.current_player:
+      raise NotPlayersTurnError(player)
+
+    if piece != self.current_piece:
+      raise WrongPiecePlayedError(piece)
+
+    placed_piece = self.board.place(piece, x, y, orientation, player)
+    self.prepare_next_turn()
+    return placed_piece
+
+  def prepare_next_turn(self):
+    self.players.rotate()
+    self.pieces.popleft()
+
+  def is_over(self):
+    no_more_pieces = len(self.pieces) == 0
+    no_more_placements = len(board.valid_placements(self.current_piece)) == 0
+    return no_more_pieces or no_more_placements
