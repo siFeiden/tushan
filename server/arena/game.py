@@ -78,11 +78,7 @@ class Board(object):
   def contains(self, piece):
     """Check if the board's area contains piece."""
     board_area = Rect.of(0, 0, self.size, self.size)
-
-    corner1 = Point(piece.x, piece.y)
-    corner2 = piece.opposite_corner()
-
-    return board_area.contains(corner1) and board_area.contains(corner2)
+    return board_area.contains_rect(piece.area())
 
   def collides_any(self, piece):
     """Check if piece collides with any piece on the board."""

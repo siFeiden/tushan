@@ -49,20 +49,18 @@ class PlacedPiece(object):
 
     assert Orientation(orientation), 'invalid orientation'
 
-  def opposite_corner(self):
-    """Return the corner opposite to the origin (x, y) of the piece's rectangle."""
+  def area(self):
+    """Return a Rect describing the area of this piece"""
     w = self.piece.width
     h = self.piece.height
     origin = Point(self.x, self.y)
     e1, e2 = self.units_for_orientation()
 
-    return origin + e1 * w + e2 * h
+    return Rect(origin, origin + e1 * w + e2 * h)
 
   def collides(self, other):
     """Check if this piece collides with/ overlaps another piece."""
-    area = Rect.of(self.x, self.y, *self.opposite_corner())
-    other_area = Rect.of(other.x, other.y, *other.opposite_corner())
-    return area.overlaps(other_area)
+    return self.area().overlaps(other.area())
 
   def connects_to(self, other):
     """Check if this piece connects to another piece."""

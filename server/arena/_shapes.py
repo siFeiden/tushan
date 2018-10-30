@@ -173,7 +173,7 @@ class Rect:
 
     @classmethod
     def of(clss, x1, y1, x2, y2):
-      return Rect(Point(x1, y1), Point(x2, y2))
+        return Rect(Point(x1, y1), Point(x2, y2))
 
     def set_points(self, pt1, pt2):
         """Reset the rectangle coordinates."""
@@ -189,6 +189,9 @@ class Rect:
         x,y = pt.as_tuple()
         return (self.left <= x <= self.right and
                 self.top <= y <= self.bottom)
+
+    def contains_rect(self, other):
+        return self.contains(other.top_left()) and self.contains(other.bottom_right())
 
     def overlaps(self, other):
         """Return true if a rectangle overlaps this rectangle."""
