@@ -41,77 +41,77 @@ class PieceTest(unittest.TestCase):
 
   def test_p1_docking_points(self):
     expected_docks = {
-      (1.5, 1.0): False,
-      (2.0, 1.5): True,
-      (2.0, 2.5): True,
-      (2.0, 3.5): True,
-      (1.5, 4.0): True,
-      (1.0, 3.5): False,
-      (1.0, 2.5): False,
-      (1.0, 1.5): False,
+      DockingPoint(1.5, 1.0, False),
+      DockingPoint(2.0, 1.5, True),
+      DockingPoint(2.0, 2.5, True),
+      DockingPoint(2.0, 3.5, True),
+      DockingPoint(1.5, 4.0, True),
+      DockingPoint(1.0, 3.5, False),
+      DockingPoint(1.0, 2.5, False),
+      DockingPoint(1.0, 1.5, False),
     }
 
     docks = self.placed_piece1.docking_points()
-    self.assertDictEqual(expected_docks, docks)
+    self.assertSetEqual(expected_docks, docks)
 
   def test_p4_docking_points(self):
     expected_docks = {
-      (5.5, 2.0): True,
-      (6.5, 2.0): False,
-      (7.0, 2.5): False,
-      (7.0, 3.5): False,
-      (6.5, 4.0): True,
-      (5.5, 4.0): True,
-      (5.0, 3.5): True,
-      (5.0, 2.5): True,
+      DockingPoint(5.5, 2.0, True),
+      DockingPoint(6.5, 2.0, False),
+      DockingPoint(7.0, 2.5, False),
+      DockingPoint(7.0, 3.5, False),
+      DockingPoint(6.5, 4.0, True),
+      DockingPoint(5.5, 4.0, True),
+      DockingPoint(5.0, 3.5, True),
+      DockingPoint(5.0, 2.5, True),
     }
 
     docks = self.placed_piece4.docking_points()
-    self.assertDictEqual(expected_docks, docks)
+    self.assertSetEqual(expected_docks, docks)
 
   def test_p5_docking_points(self):
     expected_docks = {
-      (5.5, 1.0): False,
-      (6.0, 1.5): True,
-      (5.5, 2.0): True,
-      (5.0, 1.5): False,
+      DockingPoint(5.5, 1.0, False),
+      DockingPoint(6.0, 1.5, True),
+      DockingPoint(5.5, 2.0, True),
+      DockingPoint(5.0, 1.5, False),
     }
 
     docks = self.placed_piece5.docking_points()
-    self.assertDictEqual(expected_docks, docks)
+    self.assertSetEqual(expected_docks, docks)
 
   def test_p5_west_docking_points(self):
     expected_docks = {
-      (5.0, 1.5): False,
-      (4.5, 2.0): True,
-      (4.0, 1.5): True,
-      (4.5, 1.0): False,
+      DockingPoint(5.0, 1.5, False),
+      DockingPoint(4.5, 2.0, True),
+      DockingPoint(4.0, 1.5, True),
+      DockingPoint(4.5, 1.0, False),
     }
 
     docks = self.pp5_west.docking_points()
-    self.assertDictEqual(expected_docks, docks)
+    self.assertSetEqual(expected_docks, docks)
 
   def test_p5_north_docking_points(self):
     expected_docks = {
-      (4.5, 1.0): False,
-      (4.0, 0.5): True,
-      (4.5, 0.0): True,
-      (5.0, 0.5): False,
+      DockingPoint(4.5, 1.0, False),
+      DockingPoint(4.0, 0.5, True),
+      DockingPoint(4.5, 0.0, True),
+      DockingPoint(5.0, 0.5, False),
     }
 
     docks = self.pp5_north.docking_points()
-    self.assertDictEqual(expected_docks, docks)
+    self.assertSetEqual(expected_docks, docks)
 
   def test_p5_east_docking_points(self):
     expected_docks = {
-      (5.0, 0.5): False,
-      (5.5, 0.0): True,
-      (6.0, 0.5): True,
-      (5.5, 1.0): False,
+      DockingPoint(5.0, 0.5, False),
+      DockingPoint(5.5, 0.0, True),
+      DockingPoint(6.0, 0.5, True),
+      DockingPoint(5.5, 1.0, False),
     }
 
     docks = self.pp5_east.docking_points()
-    self.assertDictEqual(expected_docks, docks)
+    self.assertSetEqual(expected_docks, docks)
 
   def test_p1_connects_to_p2(self):
     self.assertTrue(self.placed_piece1.connects_to(self.placed_piece2))

@@ -10,6 +10,19 @@ class Orientation(Enum):
   West  = 'west'
 
 
+class DockingPoint(object):
+  def __init__(self, x, y, is_connector):
+    self.x = x
+    self.y = y
+    self.is_connector = is_connector
+
+  def __eq__(self, other):
+    return self.x == other.x and self.y == other.y
+
+  def __hash__(self):
+    return hash((self.x, self.y))
+
+
 class Piece(object):
   """A piece before it is placed on the board.
 
@@ -66,7 +79,7 @@ class PlacedPiece(object):
     """Check if this piece connects to another piece."""
     docks = self.docking_points()
     other_docks = other.docking_points()
-    commmon_docks = docks.keys() & other_docks.keys()
+    commmon_docks = docks & other_docks
 
     assert len(docks) > 0, 'no docking points'
     assert len(other_docks) > 0, 'no other docking points'
@@ -74,8 +87,11 @@ class PlacedPiece(object):
     if len(commmon_docks) == 0:
       return False
 
-    are_docks_compatible = all(docks[p] == other_docks[p] for p in commmon_docks)
-    has_connector_match = any(docks[p] and other_docks[p] for p in commmon_docks)
+    connectors = {d for d in docks if d.is_connector}
+    other_connectors = {d for d in other_docks if d.is_connector}
+
+    are_docks_compatible = len((commmon_docks & connectors) ^ (commmon_docks & other_connectors)) == 0
+    has_connector_match = len(connectors & other_connectors) > 0
     return are_docks_compatible and has_connector_match
 
   def docking_points(self):
@@ -84,7 +100,7 @@ class PlacedPiece(object):
     Returns a map from points to bool: the map's value is True iff the
     point is a docking point.
     """
-    docking_points = {}
+    docking_points = set()
     origin = Point(self.x, self.y)
     w = self.piece.width
     h = self.piece.height
@@ -95,22 +111,22 @@ class PlacedPiece(object):
     # top edge
     top_left = origin + e1 * 0.5
     for (x, y) in top_left.ray(e1, steps=w):
-      docking_points[(x, y)] = next(is_connector)
+      docking_points.add(DockingPoint(x, y, next(is_connector)))
 
     # right edge
     top_right = origin + e1 * w + e2 * 0.5
     for (x, y) in top_right.ray(e2, steps=h):
-      docking_points[(x, y)] = next(is_connector)
+      docking_points.add(DockingPoint(x, y, next(is_connector)))
 
     # bottom edge, right to left
     bottom_right = origin + e1 * w + e2 * h - e1 * 0.5
     for (x, y) in bottom_right.ray(-e1, steps=w):
-      docking_points[(x, y)] = next(is_connector)
+      docking_points.add(DockingPoint(x, y, next(is_connector)))
 
     # left edge, bottom to top
     bottom_left = origin + e2 * h - e2 * 0.5
     for (x, y) in bottom_left.ray(-e2, steps=h):
-      docking_points[(x, y)] = next(is_connector)
+      docking_points.add(DockingPoint(x, y, next(is_connector)))
 
     return docking_points
 
