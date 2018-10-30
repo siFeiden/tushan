@@ -1,6 +1,6 @@
 import unittest
 
-from arena.game import Piece, PlacedPiece, Orientation
+from arena.piece import DockingPoint, Orientation, Piece, PlacedPiece
 
 
 class PieceTest(unittest.TestCase):

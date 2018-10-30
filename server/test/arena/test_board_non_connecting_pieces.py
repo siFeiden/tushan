@@ -1,6 +1,7 @@
 import unittest
 
-from arena.game import Board, InvalidPlacementError, Piece, Orientation
+from arena.game import Board, InvalidPlacementError
+from arena.piece import Piece, Orientation
 
 class NonConnectionPiecesBoardTest(unittest.TestCase):
   def setUp(self):
