@@ -50,11 +50,11 @@ class Board(object):
     self.pieces.append(placed_piece)
     return placed_piece
 
-  def place(self, piece, x, y, orientation, player):
-    """Place a stone on the board."""
-    assert Orientation(orientation), 'invalid orientation'
+  def validate_placement(self, placed_piece):
+    """Check if a stone can be placed on the board.
 
-    placed_piece = PlacedPiece(piece, x, y, orientation, player)
+    Raise InvalidPlacementError if placement is not valid.
+    """
 
     if not self.contains(placed_piece):
       raise InvalidPlacementError('Piece not in board')
@@ -65,6 +65,12 @@ class Board(object):
     if not self.connects_one(placed_piece):
       raise InvalidPlacementError('Piece does not connect')
 
+  def place(self, piece, x, y, orientation, player):
+    """Place a stone on the board."""
+    assert Orientation(orientation), 'invalid orientation'
+
+    placed_piece = PlacedPiece(piece, x, y, orientation, player)
+    self.validate_placement(placed_piece)
     self.pieces.append(placed_piece)
     return placed_piece
 
