@@ -2,6 +2,7 @@ from collections import deque
 from enum import Enum
 
 from .piece import Orientation, Piece, PlacedPiece
+from .placements import ValidPlacements
 from ._shapes import Point, Rect
 
 
