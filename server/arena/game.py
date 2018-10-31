@@ -93,20 +93,20 @@ class Board(object):
 
 
 class Player(object):
-  def __init__(self, id):
+  def __init__(self, id, objectives):
     self.id = id
+    self.objectives = objectives
+
+    assert len(objectives) == 2, 'invalid player objectives'
 
 
 class Game(object):
-  def __init__(self, board, players, objectives, pieces):
+  def __init__(self, board, players, pieces):
     self.board = board
     self.players = deque(players)
-    self.objectives = objectives
     self.pieces = deque(pieces)
 
     assert len(players) >= 2, 'game needs at least two players'
-    assert all(p in objectives for p in players), 'some player without objective'
-    assert all(len(objectives[p]) == 2 for p in players), 'invalid player objectives'
 
   @property
   def current_player(self):
