@@ -10,7 +10,8 @@ class ValidPlacementsTest(unittest.TestCase):
     self.piece2 = Piece(1, 3, [0, 1, 4])
 
   def test_list_valid_placements(self):
-    board = Board(8, self.piece1)
+    board = Board(8)
+    board.place_initial(self.piece1)
 
     placements = list(board.valid_placements(self.piece2))
 

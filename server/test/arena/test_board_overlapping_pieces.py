@@ -7,7 +7,8 @@ class OverlappingPiecesBoardTest(unittest.TestCase):
   def setUp(self):
     self.piece1 = Piece(2, 2, [0, 1, 2, 3, 4, 5, 6, 7])
     self.piece2 = Piece(1, 3, [0, 1, 2, 3, 4, 5, 6, 7])
-    self.board = Board(8, self.piece1)
+    self.board = Board(8)
+    self.board.place_initial(self.piece1)
 
   def test_overlap_left_placement(self):
     with self.assertRaises(InvalidPlacementError):

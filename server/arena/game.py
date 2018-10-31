@@ -29,10 +29,9 @@ class Board(object):
     South = 'south'
     West  = 'west'
 
-  def __init__(self, size, initial_piece):
+  def __init__(self, size):
     self.size = size
     self.pieces = []
-    self.place_initial(initial_piece)
 
     assert size > 0, 'field size must be positive'
     assert size % 2 == 0, 'field size not even'
@@ -104,8 +103,12 @@ class Game(object):
   def __init__(self, board, players, pieces):
     self.board = board
     self.players = deque(players)
-    self.pieces = deque(pieces)
 
+    initial_piece, *playing_pieces = pieces
+    board.place_initial(initial_piece)
+    self.pieces = deque(playing_pieces)
+
+    assert len(self.pieces) > 0, 'game needs at least one piece'
     assert len(players) >= 2, 'game needs at least two players'
 
   @property
