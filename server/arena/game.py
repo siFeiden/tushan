@@ -135,3 +135,16 @@ class Game(object):
     no_more_pieces = len(self.pieces) == 0
     no_more_placements = len(board.valid_placements(self.current_piece)) == 0
     return no_more_pieces or no_more_placements
+
+  def scores(self):
+    sides = Counter(dock.board_side(self.board)
+                    for dock in placed_piece.docking_points()
+                    for placed_piece in self.board.placed_pieces
+                    if dock.is_connector)
+
+    scores = {}
+    for player in self.players:
+      side1, side2 = player.objectives
+      scores[player] = sides[side1] * sides[side2]
+
+    return scores

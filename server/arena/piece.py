@@ -16,6 +16,18 @@ class DockingPoint(object):
     self.y = y
     self.is_connector = is_connector
 
+  def board_side(self, board):
+    if self.x == 0:
+      return board.Side.West
+    if self.y == 0:
+      return board.Side.North
+    if self.x == board.size:
+      return board.Side.East
+    if self.y == board.size:
+      return board.Side.South
+
+    return None
+
   def __eq__(self, other):
     return self.x == other.x and self.y == other.y
 
