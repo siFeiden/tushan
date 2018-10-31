@@ -1,4 +1,4 @@
-from collections import deque
+from collections import Counter, deque
 from enum import Enum
 
 from .piece import Orientation, Piece, PlacedPiece
@@ -141,8 +141,8 @@ class Game(object):
 
   def scores(self):
     sides = Counter(dock.board_side(self.board)
+                    for placed_piece in self.board.pieces
                     for dock in placed_piece.docking_points()
-                    for placed_piece in self.board.placed_pieces
                     if dock.is_connector)
 
     scores = {}
