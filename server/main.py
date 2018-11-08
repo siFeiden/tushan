@@ -23,7 +23,7 @@ class Tushan(object):
 
     event_queue.register(ClientConnectedEvent, lambda e: print('client connected'))
     event_queue.register(ClientDisconnectedEvent, lambda e: print('client disconnected'))
-    event_queue.register(MessageReceivedEvent, lambda e: print(e.payload, end=''))
+    event_queue.register(MessageReceivedEvent, lambda e: print(e.json, end=''))
     event_queue.register(HandlerFailedEvent, lambda e: print('ERROR:', e.exception))
 
     await server.start()

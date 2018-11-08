@@ -1,4 +1,5 @@
 import asyncio as aio
+import json
 import uuid
 
 from eventing.event_queue import Event
@@ -19,10 +20,18 @@ class ClientDisconnectedEvent(Event):
 
 
 class MessageReceivedEvent(Event):
-  def __init__(self, id, payload):
+  def __init__(self, id, json):
+    super().__init__()
+    self.id = id
+    self.json = json
+
+
+class InvalidMessageReceivedEvent(Event):
+  def __init__(self, id, payload, exception):
     super().__init__()
     self.id = id
     self.payload = payload
+    self.exception = exception
 
 
 class Server(object):
@@ -56,11 +65,21 @@ class Reader(object):
   async def run(self):
     while True:
       line = await self.reader.readline()
-      if self.reader.at_eof():
-        break # drops last partial message
+      payload = line.decode('utf-8')
 
-      event = MessageReceivedEvent(self.id, line.decode('utf-8'))
+      try:
+        content = json.loads(payload)
+        event = MessageReceivedEvent(self.id, content)
+      except json.JSONDecodeError as e:
+        if self.reader.at_eof():
+          break # drop last partial message
+
+        event = InvalidMessageReceivedEvent(self.id, payload, e)
+
       await self.event_queue.publish(event)
+
+      if self.reader.at_eof():
+        break
 
     event = ClientDisconnectedEvent(self.id)
     await self.event_queue.publish(event)
@@ -89,7 +108,8 @@ class Broadcaster(object):
       self.clients[event.id] = event.writer
     elif isinstance(event, MessageReceivedEvent):
       for client in self.clients.values():
-        client.write(event.payload.encode('utf-8'))
+        payload = json.dumps(event.json)
+        client.write(payload.encode('utf-8'))
         await client.drain()
     elif isinstance(event, ClientDisconnectedEvent):
       self.clients.pop(event.id)
