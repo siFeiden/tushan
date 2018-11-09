@@ -40,13 +40,7 @@ class Server(object):
     self.host = host
     self.port = port
 
-  async def client_connected(self, reader, writer):
-    client_id = uuid.uuid4()
-    event = ClientConnectedEvent(client_id, reader, writer)
-    await self.event_queue.publish(event)
-
   async def start(self):
-    self.event_queue.register_class(SpawnReadersListener())
     self.event_queue.register_class(Broadcaster())
 
     await aio.start_server(
@@ -54,6 +48,16 @@ class Server(object):
       self.host,
       self.port
     )
+
+  async def client_connected(self, reader, writer):
+    client_id = uuid.uuid4()
+    self.spawn_reader(client_id, reader)
+    event = ClientConnectedEvent(client_id, reader, writer)
+    await self.event_queue.publish(event)
+
+  def spawn_reader(self, client_id, reader):
+    reader = Reader(client_id, self.event_queue, reader)
+    aio.create_task(reader.run())
 
 
 class Reader(object):
@@ -83,14 +87,6 @@ class Reader(object):
 
     event = ClientDisconnectedEvent(self.id)
     await self.event_queue.publish(event)
-
-
-class SpawnReadersListener(object):
-  events = ClientConnectedEvent
-
-  def __call__(self, event):
-    reader = Reader(event.id, event.event_queue, event.reader)
-    aio.create_task(reader.run())
 
 
 class Broadcaster(object):
