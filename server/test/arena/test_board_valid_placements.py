@@ -1,7 +1,7 @@
 import unittest
 
-from arena.game import Board
-from arena.piece import Orientation, Piece
+from arena.logic.game import Board
+from arena.logic.piece import Orientation, Piece
 
 
 class ValidPlacementsTest(unittest.TestCase):

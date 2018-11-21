@@ -1,7 +1,8 @@
 import unittest
 
-from arena.game import Board, InvalidPlacementError
-from arena.piece import Orientation, Piece
+from arena.logic.game import Board, InvalidPlacementError
+from arena.logic.piece import Orientation, Piece
+
 
 class OverlappingPiecesBoardTest(unittest.TestCase):
   def setUp(self):

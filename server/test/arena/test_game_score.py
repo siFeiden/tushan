@@ -1,7 +1,7 @@
 import unittest
 
-from arena.game import Board, Game, Player
-from arena.piece import DockingPoint, Orientation, Piece, PlacedPiece
+from arena.logic.game import Board, Game, Player
+from arena.logic.piece import DockingPoint, Orientation, Piece, PlacedPiece
 
 
 class GameScoreTest(unittest.TestCase):
