@@ -11,6 +11,7 @@ class PlayerProxy(object):
   def __init__(self, id):
     self.id = id
     self.name = None
+    self.objectives = None
     self.in_game = False
 
   def rename(self, event):
@@ -21,6 +22,7 @@ class PlayerProxy(object):
 
   def leave(self, game):
     self.in_game = False
+    self.objectives = None
 
   def playing(self):
     return self.in_game
@@ -32,7 +34,7 @@ class Lobby(object):
     self.game = None
 
   async def client_connected(self, event)
-    # TODO: register methods in event_queue
+    # TODO register methods in event_queue
     assert event.id not in self.players
 
     self.players[event.id] = Player(event.id)
@@ -64,8 +66,8 @@ class Lobby(object):
     id1, id2 = random.sample(self.players, 2)
     objectiveNS = [game.Board.Side.North, game.Board.Side.South]
     objectiveWE = [game.Board.Side.West, game.Board.Side.East]
-    player1 = game.Player(id1, objectiveNS)
-    player2 = game.Player(id2, objectiveWE)
+    self.players[id1].objectives = objectiveNS
+    self.players[id2].objectives = objectiveWE
     return player1, player2
 
   def client_disconnected(self, event)
@@ -125,7 +127,6 @@ class Lobby(object):
     await event.event_queue.publish(reply)
 
   async def game_is_over(self, event)
-    # TODO replace logic.game.player with playerproxy everywhere
     for gameplayer in self.game.players:
       gameplayer.leave(self.game)
 
