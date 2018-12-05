@@ -10,7 +10,7 @@ class Event(object):
     self.event_queue = None
 
 
-class HandlerFailedEvent(object):
+class HandlerFailedEvent(Event):
   def __init__(self, failed_handler, exception):
     super().__init__()
     self.failed_handler = failed_handler

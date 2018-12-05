@@ -1,6 +1,6 @@
 from enum import Enum
+from .events import *
 
-# TODO create all events
 
 class Disqualification(Enum):
   InvalidMove = 'invalid_move'
@@ -88,13 +88,14 @@ class Lobby(object):
 
     try:
       self.game.make_turn(player, self.game.current_piece, x, y, orientation)
-      reply = MoveAcceptedEvent(self.game, player, x, y, orientation)
+      reply = MoveAcceptedEvent(self.game, player, x, y, orientation,
+                                self.game.current_piece)
     except GameException as e:
       reply = DisqualifyPlayerEvent(player, Disqualification.InvalidMove)
 
     await event.event_queue.publish(reply)
 
-  async def player_game_over(self, event)
+  async def player_cannot_move(self, event)
     player = self.players[event.id]
 
     if self.game.is_over():
@@ -109,7 +110,7 @@ class Lobby(object):
     for gameplayer in self.game.players:
       gameplayer.join(self.game)
 
-    reply = FirstTurnEvent(self.game)
+    reply = FirstTurnEvent(self.game, self.game.current_piece)
     await event.event_queue.publish(reply)
 
   async def disqualify_player(self, event):
@@ -120,7 +121,7 @@ class Lobby(object):
     self.game = None
     await event.event_queue.publish(reply)
 
-    reply = StartNewGameEvent()
+    reply = LaunchGameEvent()
     await event.event_queue.publish(reply)
 
   async def game_is_over(self, event)
@@ -133,5 +134,5 @@ class Lobby(object):
     self.game = None
     await event.event_queue.publish(reply)
 
-    reply = StartNewGameEvent()
+    reply = LaunchGameEvent()
     await event.event_queue.publish(reply)
