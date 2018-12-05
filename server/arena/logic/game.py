@@ -91,6 +91,14 @@ class Board(object):
     yield from ValidPlacements(self, piece)
 
 
+class Player(object):
+  def __init__(self, id, objectives):
+    self.id = id
+    self.objectives = objectives
+
+    assert len(objectives) == 2, 'invalid player objectives'
+
+
 class Game(object):
   def __init__(self, board, players, pieces):
     self.board = board
