@@ -1,5 +1,6 @@
 from enum import Enum
 from .events import *
+from .logic import game, piece
 
 
 class Disqualification(Enum):
@@ -58,7 +59,7 @@ class Lobby(object):
     board = game.Board(18)
     player1, player2 = self.choose_participants()
     pieces = piece.Piece.official_pieces()
-    new_game = Game(board, [player1, player2], pieces)
+    new_game = game.Game(board, [player1, player2], pieces)
 
     return new_game
 
@@ -86,7 +87,7 @@ class Lobby(object):
     player = self.players[event.id]
     x = event.x
     y = event.y
-    orientation = Orientation(event.orientation)
+    orientation = piece.Orientation(event.orientation)
 
     try:
       self.game.make_turn(player, self.game.current_piece, x, y, orientation)
