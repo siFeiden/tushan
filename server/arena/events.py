@@ -15,6 +15,35 @@ class GameStartedEvent(Event):
     self.game = game
 
 
+class PlayerNameEvent(Event):
+  """Sent when a player sends his name"""
+  def __init__(self, player, name):
+    self.player = player
+    self.name = name
+
+
+class PlayerMoveEvent(Event):
+  """Sent when a player has sent a move"""
+  def __init__(self, player, x, y, orientation):
+    self.player = player
+    self.x = x
+    self.y = y
+    self.orientation = orientation
+
+
+class PlayerCannotMoveEvent(Event):
+  """Sent when a player says he cannot move anymore"""
+  def __init__(self, player):
+    self.player = player
+
+
+class BadMessageReceivedEvent(Event):
+  """Sent when a player's message cannot be interpreted"""
+  def __init__(self, player, content):
+    self.player = player
+    self.content = content
+
+
 class DisqualifyPlayerEvent(Event):
   """Sent when a player is disqualified"""
   def __init__(self, player, reason):

@@ -35,7 +35,6 @@ class Lobby(object):
     self.game = None
 
   async def client_connected(self, event)
-    # TODO register methods in event_queue
     assert event.id not in self.players
 
     self.players[event.id] = Player(event.id)
@@ -87,7 +86,7 @@ class Lobby(object):
     player = self.players[event.id]
     x = event.x
     y = event.y
-    orientation = piece.Orientation(event.orientation)
+    orientation = event.orientation
 
     try:
       self.game.make_turn(player, self.game.current_piece, x, y, orientation)
