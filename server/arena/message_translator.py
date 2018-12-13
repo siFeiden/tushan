@@ -1,9 +1,14 @@
 from .logic.piece import Orientation
 from .events import *
+from net.server import MessageReceivedEvent
 
 
 class MessageTranslator(object):
   """Translates MessageReceivedEvents into more specific events"""
+
+  def __call__(self, event):
+    """This method receives the bootstrap event"""
+    event.event_queue.register(MessageReceivedEvent, self.onMessageReceived)
 
   async def onMessageReceived(self, event):
     player_id = event.id

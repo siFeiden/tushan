@@ -1,6 +1,7 @@
 from enum import Enum
 from .events import *
 from .logic import game, piece
+from net.server import ClientConnectedEvent, ClientDisconnectedEvent
 
 
 class Disqualification(Enum):
@@ -33,6 +34,18 @@ class Lobby(object):
   def __init__(self):
     self.players = {}
     self.game = None
+
+  def __call__(self, event):
+    event_queue = event.event_queue
+    event_queue.register(ClientConnectedEvent, self.client_connected)
+    event_queue.register(ClientDisconnectedEvent, self.client_disconnected)
+    event_queue.register(LaunchGameEvent, self.launch_game)
+    event_queue.register(GameStartedEvent, self.game_started)
+    event_queue.register(PlayerNameEvent, self.player_name)
+    event_queue.register(PlayerMoveEvent, self.player_move)
+    event_queue.register(PlayerCannotMoveEvent, self.player_cannot_move)
+    event_queue.register(GameIsOverEvent, self.game_is_over)
+    event_queue.register(DisqualifyPlayerEvent, self.disqualify_player)
 
   async def client_connected(self, event):
     assert event.id not in self.players

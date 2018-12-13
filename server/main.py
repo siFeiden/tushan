@@ -2,10 +2,14 @@ import argparse
 import asyncio as aio
 
 from net.server import *
-from eventing.event_queue import EventQueue, HandlerFailedEvent
+from eventing.event_queue import Event, EventQueue, HandlerFailedEvent
 from arena.lobby import Lobby
 from arena.message_translator import MessageTranslator
 from arena import events as evt
+
+
+class BootstrapEvent(Event):
+  """Sent as the very first event in an EventQueue"""
 
 
 class Tushan(object):
@@ -24,18 +28,13 @@ class Tushan(object):
     lobby = Lobby()
     message_translator = MessageTranslator()
 
-    event_queue.register(MessageReceivedEvent, message_translator.onMessageReceived)
     event_queue.register(HandlerFailedEvent, lambda e: print('ERROR:', e.exception))
+    event_queue.register(BootstrapEvent, lobby)
+    event_queue.register(BootstrapEvent, message_translator)
 
-    event_queue.register(ClientConnectedEvent, lobby.client_connected)
-    event_queue.register(ClientDisconnectedEvent, lobby.client_disconnected)
-    event_queue.register(evt.LaunchGameEvent, lobby.launch_game)
-    event_queue.register(evt.GameStartedEvent, lobby.game_started)
-    event_queue.register(evt.PlayerNameEvent, lobby.player_name)
-    event_queue.register(evt.PlayerMoveEvent, lobby.player_move)
-    event_queue.register(evt.PlayerCannotMoveEvent, lobby.player_cannot_move)
-    event_queue.register(evt.GameIsOverEvent, lobby.game_is_over)
-    event_queue.register(evt.DisqualifyPlayerEvent, lobby.disqualify_player)
+    # Sent BootstrapEvent to allow other components to register listeners themselves
+    event = BootstrapEvent()
+    await event_queue.publish(event)
 
     await server.start()
     await event_queue.run()
