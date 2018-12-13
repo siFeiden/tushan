@@ -3,6 +3,8 @@ from .events import *
 from .logic import game, piece
 from net.server import ClientConnectedEvent, ClientDisconnectedEvent
 
+import random
+
 
 class Disqualification(Enum):
   InvalidMove = 'invalid_move'
@@ -50,7 +52,7 @@ class Lobby(object):
   async def client_connected(self, event):
     assert event.id not in self.players
 
-    self.players[event.id] = Player(event.id)
+    self.players[event.id] = PlayerProxy(event.id)
     reply = LaunchGameEvent()
     await event.event_queue.publish(reply)
 
@@ -76,20 +78,22 @@ class Lobby(object):
     return new_game
 
   def choose_participants(self):
-    id1, id2 = random.sample(self.players, 2)
     objectiveNS = [game.Board.Side.North, game.Board.Side.South]
     objectiveWE = [game.Board.Side.West, game.Board.Side.East]
-    self.players[id1].objectives = objectiveNS
-    self.players[id2].objectives = objectiveWE
+
+    players = list(self.players.values())
+    player1, player2 = random.sample(players, 2)
+    player1.objectives = objectiveNS
+    player2.objectives = objectiveWE
     return player1, player2
 
-  def client_disconnected(self, event):
+  async def client_disconnected(self, event):
     assert event.id in self.players
 
     player = self.players.pop(event.id, None)
     if player.playing():
       reply = DisqualifyPlayerEvent(player, Disqualification.QuitGame)
-      event.event_queue.publish(reply)
+      await event.event_queue.publish(reply)
 
   def player_name(self, event):
     player = self.players[event.id]
