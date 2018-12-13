@@ -34,7 +34,7 @@ class Lobby(object):
     self.players = {}
     self.game = None
 
-  async def client_connected(self, event)
+  async def client_connected(self, event):
     assert event.id not in self.players
 
     self.players[event.id] = Player(event.id)
@@ -62,7 +62,7 @@ class Lobby(object):
 
     return new_game
 
-  def choose_participants(self);
+  def choose_participants(self):
     id1, id2 = random.sample(self.players, 2)
     objectiveNS = [game.Board.Side.North, game.Board.Side.South]
     objectiveWE = [game.Board.Side.West, game.Board.Side.East]
@@ -70,7 +70,7 @@ class Lobby(object):
     self.players[id2].objectives = objectiveWE
     return player1, player2
 
-  def client_disconnected(self, event)
+  def client_disconnected(self, event):
     assert event.id in self.players
 
     player = self.players.pop(event.id, None)
@@ -97,7 +97,7 @@ class Lobby(object):
 
     await event.event_queue.publish(reply)
 
-  async def player_cannot_move(self, event)
+  async def player_cannot_move(self, event):
     player = self.players[event.id]
 
     if self.game.is_over():
@@ -126,7 +126,7 @@ class Lobby(object):
     reply = LaunchGameEvent()
     await event.event_queue.publish(reply)
 
-  async def game_is_over(self, event)
+  async def game_is_over(self, event):
     for gameplayer in self.game.players:
       gameplayer.leave(self.game)
 
