@@ -132,7 +132,7 @@ class Lobby(object):
     await event.event_queue.publish(reply)
 
   async def disqualify_player(self, event):
-    for gameplayer in self.game.players.values():
+    for gameplayer in self.game.players:
       gameplayer.leave(self.game)
 
     reply = GameCancelledEvent(self.game, event.reason)

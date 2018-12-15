@@ -114,7 +114,7 @@ class Broadcaster(object):
     else:
       try:
         data = event.to_json()
-        payload = json.dumps(data)
+        payload = json.dumps(data) + '\n'
         for client in self.clients.values():
           client.write(payload.encode('utf-8'))
           await client.drain()
