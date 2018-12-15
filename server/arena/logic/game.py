@@ -36,13 +36,13 @@ class Board(object):
     assert size > 0, 'field size must be positive'
     assert size % 2 == 0, 'field size not even'
 
-  def place_initial(self, piece):
+  def place_initial(self, piece, owner):
     """Place the first stone on the board.
 
     Collisions and connections with other stones are not checked
     """
     center = self.size // 2 - 1
-    placed_piece = PlacedPiece(piece, center, center, Orientation.South, None)
+    placed_piece = PlacedPiece(piece, center, center, Orientation.South, owner)
 
     if not self.contains(placed_piece):
       raise InvalidPlacementError()
@@ -105,7 +105,8 @@ class Game(object):
     self.players = deque(players)
 
     initial_piece, *playing_pieces = pieces
-    board.place_initial(initial_piece)
+    # we give the initial piece a random owner to avoid None
+    board.place_initial(initial_piece, self.current_player)
     self.pieces = deque(playing_pieces)
 
     assert len(self.pieces) > 0, 'game needs at least one piece'
