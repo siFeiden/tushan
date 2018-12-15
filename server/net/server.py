@@ -3,6 +3,7 @@ import json
 import uuid
 
 from eventing.event_queue import Event
+from arena.events import *
 
 
 class ClientConnectedEvent(Event):
@@ -93,7 +94,13 @@ class Broadcaster(object):
   events = [
     ClientConnectedEvent,
     MessageReceivedEvent,
-    ClientDisconnectedEvent
+    ClientDisconnectedEvent,
+    GameStartedEvent,
+    MoveAcceptedEvent,
+    GameIsOverEvent,
+    GameEndedEvent,
+    GameCancelledEvent,
+    FirstTurnEvent
   ]
 
   def __init__(self):
@@ -102,10 +109,16 @@ class Broadcaster(object):
   async def __call__(self, event):
     if isinstance(event, ClientConnectedEvent):
       self.clients[event.id] = event.writer
-    elif isinstance(event, MessageReceivedEvent):
-      for client in self.clients.values():
-        payload = json.dumps(event.json)
-        client.write(payload.encode('utf-8'))
-        await client.drain()
     elif isinstance(event, ClientDisconnectedEvent):
       self.clients.pop(event.id)
+    else:
+      try:
+        data = event.to_json()
+        payload = json.dumps(data)
+        for client in self.clients.values():
+          client.write(payload.encode('utf-8'))
+          await client.drain()
+      except AttributeError as e:
+        # event cannot be serialized, so don't send it
+        pass
+

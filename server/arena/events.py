@@ -16,6 +16,12 @@ class GameStartedEvent(Event):
     super().__init__()
     self.game = game
 
+  def to_json(self):
+    return {
+      'type': 'gamestarted',
+      'game': GameSerializer.serialize(self.game)
+    }
+
 
 class PlayerNameEvent(Event):
   """Sent when a player sends his name"""
@@ -66,9 +72,22 @@ class MoveAcceptedEvent(Event):
     self.placed_piece = placed_piece
     self.next_piece = next_piece
 
+  def to_json(self):
+    return {
+      'type': 'moveaccepted',
+      'game': GameSerializer.serialize(self.game),
+      'placed_piece': PlacedPieceSerializer.serialize(self.placed_piece),
+      'next_piece': PieceSerializer.serialize(self.next_piece)
+    }
+
 
 class GameIsOverEvent(Event):
   """Sent when no more moves in a game are possible"""
+
+  def to_json(self):
+    return {
+      'type': 'gameisover'
+    }
 
 
 class GameEndedEvent(Event):
@@ -80,6 +99,15 @@ class GameEndedEvent(Event):
     self.winner = winner
     self.scores = scores
 
+  def to_json(self):
+    scores_serial = {player.id: score for player, score in self.scores.items()}
+
+    return {
+      'type': 'gameended',
+      'winner': PlayerSerializer.serialize(self.winner),
+      'scores': scores_serial
+    }
+
 
 class GameCancelledEvent(Event):
   """Sent when a game must be cancelled because of a disqualification"""
@@ -88,6 +116,13 @@ class GameCancelledEvent(Event):
     self.game = game
     self.reason = reason
 
+  def to_json(self):
+    return {
+      'type': 'gamecancelled',
+      'game': GameSerializer.serialize(self.game),
+      'reason': EnumSerializer.serialize(self.reason)
+    }
+
 
 class FirstTurnEvent(Event):
   """Sent when the first turn should be made"""
@@ -95,3 +130,10 @@ class FirstTurnEvent(Event):
     super().__init__()
     self.game = game
     self.piece = piece
+
+  def to_json(self):
+    return {
+      'type': 'firstturn',
+      'game': GameSerializer.serialize(self.game),
+      'piece': PieceSerializer.serialize(self.piece)
+    }
