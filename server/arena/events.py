@@ -60,13 +60,11 @@ class DisqualifyPlayerEvent(Event):
 
 class MoveAcceptedEvent(Event):
   """Sent when a player's move has been accepted"""
-  def __init__(self, game, player, x, y, orientation):
+  def __init__(self, game, placed_piece, next_piece):
     super().__init__()
     self.game = game
-    self.player = player
-    self.x = x
-    self.y = y
-    self.orientation = orientation
+    self.placed_piece = placed_piece
+    self.next_piece = next_piece
 
 
 class GameIsOverEvent(Event):

@@ -106,9 +106,8 @@ class Lobby(object):
     orientation = event.orientation
 
     try:
-      self.game.make_turn(player, self.game.current_piece, x, y, orientation)
-      reply = MoveAcceptedEvent(self.game, player, x, y, orientation,
-                                self.game.current_piece)
+      placed_piece = self.game.make_turn(player, self.game.current_piece, x, y, orientation)
+      reply = MoveAcceptedEvent(self.game, placed_piece, self.game.current_piece)
     except GameException as e:
       reply = DisqualifyPlayerEvent(player, Disqualification.InvalidMove)
 
