@@ -429,4 +429,68 @@ for the orientation of placed \hyperlink{stone}{\emph{stones}}.
   \end{center}
 \end{mdframed}
 
+
+\section{Protocol}
+
+\subsection{Incoming messages}
+In the following we document the messages that the players receive from the
+server. Each message is a single json object containing a property \texttt{type}
+and all data properties at the root of the object.
+Every message is encoded as a single line of json and terminated by
+\texttt{\textbackslash n}. For example:
+\mintinline{json}{{ "type": "gamestarted", "game": {...} }}
+
+\begin{itemize}
+\item \texttt{GameStartedEvent} \\
+  Sent when a new game was started \\
+  type: \texttt{gamestarted} \\
+  data props: \texttt{game}
+
+\item \texttt{MoveAcceptedEvent} \\
+  Sent when a player's move has been accepted \\
+  type: \texttt{moveaccepted} \\
+  data props: \texttt{game}, \texttt{placed\_piece}, \texttt{next\_piece}
+
+\item \texttt{GameIsOverEvent} \\
+  Sent when no more moves in a game are possible \\
+  type: \texttt{gameisover} \\
+  data props: none
+
+\item \texttt{GameEndedEvent} \\
+  Sent when a game has ended and scores and winner have been calculated \\
+  type: \texttt{gameended} \\
+  data props: \texttt{winner}, \texttt{scores}
+
+\item \texttt{GameCancelledEvent} \\
+  Sent when a game must be cancelled because of a disqualification \\
+  type: \texttt{gamecancelled} \\
+  data props: \texttt{game}, \texttt{reason}
+
+\item \texttt{FirstTurnEvent} \\
+  Sent when the first turn should be made \\
+  type: \texttt{firstturn} \\
+  data props: \texttt{game}, \texttt{piece}
+\end{itemize}
+
+
+\subsection{Outgoing messages}
+Here, we document the messages that a player can send to the server.
+As above, every message must be encoded as a json object and then be
+sent as a single line of text. For example:
+\mintinline{json}{{ "type": "move", "x": 2, "y": 7, "orientation": "west" }}
+
+\begin{itemize}
+\item Player sends a move \\
+  Send this if it's your turn and you want to make your move. \\
+  type: \texttt{move} \\
+  required data props: \texttt{x}, \texttt{y}, \texttt{orientation}
+
+\item Player detected there is no move \\
+  Send this if it's your turn but you cannot move anymore. A player
+  must be able to detect this condition. After this message the game
+  will end. \\
+  type: \texttt{gameover} \\
+  required data props: none
+\end{itemize}
+
 \end{document}
