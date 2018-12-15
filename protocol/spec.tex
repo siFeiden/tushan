@@ -427,53 +427,68 @@ for the orientation of placed \hyperlink{stone}{\emph{stones}}.
   \end{center}
 \end{mdframed}
 
+
 \section{Protocol}
-We follow a simple client and server architecture. In the following we treat
-clients grammatically as female while server are considered to be
-(grammatically) male.
 
-% Please use the following blueprint to specify new messages of the client:
-% \subsection{<type of the message>}
-% <
-%   description what the message expresses and which information it conveys
-% >
-% \begin{mdframed}[frametitle = {Specification}]
-%   \emph{Required Keys}
-%   \begin{itemize}
-%     \item \mintinline{json}{"<key>"}: <description of type>
-%     <...>
-%   \end{itemize}
-%   \emph{Optional Keys}
-%   \begin{itemize}
-%     \item \mintinline{json}{"<key>"}: <description of type>
-%     <...>
-%   \end{itemize}
-%   (if no optional keys exist, just leave out the itemize (but not the
-%   Optional Keys string above)
-% \end{mdframed}
-% \begin{mdframed}[frametitle = {Example}]
-%   <
-%     description of example
-%   >
-%   \inputminted{json}{examples/<filepath to example>}
-% \end{mdframed}
-% (Naturally, you can include multiple examples to illustrate different aspects
-%  of the message)
+\subsection{Incoming messages}
+In the following we document the messages that the players receive from the
+server. Each message is a single json object containing a property \texttt{type}
+and all data properties at the root of the object.
+Every message is encoded as a single line of json and terminated by
+\texttt{\textbackslash n}. For example:
+\mintinline{json}{{ "type": "gamestarted", "game": {...} }}
 
-\subsection{Initial Message}
-A client registers herself by the server by sending him an initial message.
-This initial message contains the \emph{name} the client wants to be identified
-with.
-\begin{mdframed}[frametitle = {Specification}]
-  \emph{Required Keys}
-  \begin{itemize}
-    \item \mintinline{json}{"name"}: string
-  \end{itemize}
-  \emph{Optional Keys}
-\end{mdframed}
-\begin{mdframed}[frametitle = {Example}]
-  The following message registers a client with name "Ada".
-  \inputminted{json}{examples/initial-message.json}
-\end{mdframed}
+\begin{itemize}
+\item \texttt{GameStartedEvent} \\
+  Sent when a new game was started \\
+  type: \texttt{gamestarted} \\
+  data props: \texttt{game}
+
+\item \texttt{MoveAcceptedEvent} \\
+  Sent when a player's move has been accepted \\
+  type: \texttt{moveaccepted} \\
+  data props: \texttt{game}, \texttt{placed\_piece}, \texttt{next\_piece}
+
+\item \texttt{GameIsOverEvent} \\
+  Sent when no more moves in a game are possible \\
+  type: \texttt{gameisover} \\
+  data props: none
+
+\item \texttt{GameEndedEvent} \\
+  Sent when a game has ended and scores and winner have been calculated \\
+  type: \texttt{gameended} \\
+  data props: \texttt{winner}, \texttt{scores}
+
+\item \texttt{GameCancelledEvent} \\
+  Sent when a game must be cancelled because of a disqualification \\
+  type: \texttt{gamecancelled} \\
+  data props: \texttt{game}, \texttt{reason}
+
+\item \texttt{FirstTurnEvent} \\
+  Sent when the first turn should be made \\
+  type: \texttt{firstturn} \\
+  data props: \texttt{game}, \texttt{piece}
+\end{itemize}
+
+
+\subsection{Outgoing messages}
+Here, we document the messages that a player can send to the server.
+As above, every message must be encoded as a json object and then be
+sent as a single line of text. For example:
+\mintinline{json}{{ "type": "move", "x": 2, "y": 7, "orientation": "west" }}
+
+\begin{itemize}
+\item Player sends a move \\
+  Send this if it's your turn and you want to make your move. \\
+  type: \texttt{move} \\
+  required data props: \texttt{x}, \texttt{y}, \texttt{orientation}
+
+\item Player detected there is no move \\
+  Send this if it's your turn but you cannot move anymore. A player
+  must be able to detect this condition. After this message the game
+  will end. \\
+  type: \texttt{gameover} \\
+  required data props: none
+\end{itemize}
 
 \end{document}

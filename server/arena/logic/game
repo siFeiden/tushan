@@ -1,0 +1,21 @@
+a game
+  must know its players
+  must know whose turn it is
+  must know the order of the players
+  must announce the next player after a turn
+
+  must know the size of the board
+  must know which sides of the board belong to which player
+
+  must know its pieces and where they connect
+  must hand out a piece for each turn
+  must keep track who placed which pieces where in which orientation
+  must check that the piece that is placed is the one that was handed out for the turn
+
+  must check that a piece is placed in a valid location
+  must check if the game is over after a turn:
+    1) there are no more open connectors
+    2) the piece for the next turn has no valid place on the board
+  must calculate the scores for each player after the game is over
+
+  must disqualify players that make invalid moves
