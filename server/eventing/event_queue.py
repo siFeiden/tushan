@@ -1,4 +1,5 @@
 import asyncio as aio
+import traceback
 
 from collections import defaultdict
 from datetime import datetime
@@ -56,4 +57,6 @@ class EventQueue(object):
         if aio.iscoroutine(result):
           await result
       except Exception as e:
+        if aio.get_event_loop().get_debug():
+          traceback.print_exc()
         await self.publish(HandlerFailedEvent(handler, e))

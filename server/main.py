@@ -21,6 +21,9 @@ class Tushan(object):
 
     return parser
 
+  def handler_failed(self, event):
+    print('ERROR:', event.exception)
+
   async def bootstrap(self, options):
     event_queue = EventQueue()
     server = Server(event_queue, options.host, options.port)
@@ -28,7 +31,7 @@ class Tushan(object):
     lobby = Lobby()
     message_translator = MessageTranslator()
 
-    event_queue.register(HandlerFailedEvent, lambda e: print('ERROR:', e.exception))
+    event_queue.register(HandlerFailedEvent, self.handler_failed)
     event_queue.register(BootstrapEvent, lobby)
     event_queue.register(BootstrapEvent, message_translator)
 
