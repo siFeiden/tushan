@@ -1,6 +1,6 @@
 import unittest
 
-from arena.logic.game import Board, InvalidPlacementError
+from arena.logic.game import Board, InvalidPlacementError, Player
 from arena.logic.piece import Orientation, Piece
 
 
@@ -9,12 +9,14 @@ class NonConnectionPiecesBoardTest(unittest.TestCase):
     self.piece1 = Piece(2, 2, [2, 3, 7])
     self.piece2 = Piece(1, 3, [1, 2])
     self.piece3 = Piece(1, 3, [0, 7])
+    self.player1 = Player(1, [0, 1])
+    self.player2 = Player(2, [0, 1])
 
     self.board1 = Board(8)
-    self.board1.place_initial(self.piece1)
+    self.board1.place_initial(self.piece1, self.player1)
 
     self.board2 = Board(8)
-    self.board2.place_initial(self.piece1)
+    self.board2.place_initial(self.piece1, self.player2)
     self.board2.place(self.piece3, 5, 4, Orientation.East, None)
 
   def test_pieces_too_far_apart_1(self):

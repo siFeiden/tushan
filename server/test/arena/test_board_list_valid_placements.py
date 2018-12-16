@@ -1,6 +1,6 @@
 import unittest
 
-from arena.logic.game import Board
+from arena.logic.game import Board, Player
 from arena.logic.piece import Orientation, Piece
 
 
@@ -8,10 +8,11 @@ class ValidPlacementsTest(unittest.TestCase):
   def setUp(self):
     self.piece1 = Piece(2, 2, [2, 5])
     self.piece2 = Piece(1, 3, [0, 1, 4])
+    self.player = Player(1, [0, 1])
 
   def test_list_valid_placements(self):
     board = Board(8)
-    board.place_initial(self.piece1)
+    board.place_initial(self.piece1, self.player)
 
     placements = list(board.valid_placements(self.piece2))
 
