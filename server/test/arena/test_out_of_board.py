@@ -10,7 +10,7 @@ class OutOfBoardTest(unittest.TestCase):
     self.piece2 = Piece(2, 2, [0, 1, 2, 3, 4, 5, 6, 7])
     self.board = Board(4)
     self.player = Player(1, [0, 1])
-    self.board.place_initial(self.piece1, self.player)
+    self.board.place_simple_initial(self.piece1, self.player)
 
   def test_completely_left_out_of_board_placement(self):
     with self.assertRaises(InvalidPlacementError):

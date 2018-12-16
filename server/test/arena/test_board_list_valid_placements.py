@@ -12,7 +12,7 @@ class ValidPlacementsTest(unittest.TestCase):
 
   def test_list_valid_placements(self):
     board = Board(8)
-    board.place_initial(self.piece1, self.player)
+    board.place_simple_initial(self.piece1, self.player)
 
     placements = list(board.valid_placements(self.piece2))
 

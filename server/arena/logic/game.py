@@ -36,13 +36,18 @@ class Board(object):
     assert size > 0, 'field size must be positive'
     assert size % 2 == 0, 'field size not even'
 
-  def place_initial(self, piece, owner):
+  def place_simple_initial(self, piece, owner):
+    center = self.size // 2 - 1
+    self.place_initial(piece, center, center, Orientation.South, owner)
+
+  def place_initial(self, piece, x, y, orientation, owner):
     """Place the first stone on the board.
 
     Collisions and connections with other stones are not checked
+    but piece must be placed in the middle of the board.
     """
-    center = self.size // 2 - 1
-    placed_piece = PlacedPiece(piece, center, center, Orientation.South, owner)
+    # TODO check that piece is placed in middle of board
+    placed_piece = PlacedPiece(piece, x, y, orientation, owner)
 
     if not self.contains(placed_piece):
       raise InvalidPlacementError()
@@ -103,14 +108,10 @@ class Game(object):
   def __init__(self, board, players, pieces):
     self.board = board
     self.players = deque(players)
-
-    initial_piece, *playing_pieces = pieces
-    # we give the initial piece a random owner to avoid None
-    board.place_initial(initial_piece, self.current_player)
-    self.pieces = deque(playing_pieces)
+    self.pieces = deque(pieces)
 
     assert len(self.pieces) > 0, 'game needs at least one piece'
-    assert len(players) >= 2, 'game needs at least two players'
+    assert len(self.players) >= 2, 'game needs at least two players'
 
   @property
   def current_player(self):
@@ -127,7 +128,10 @@ class Game(object):
     if piece != self.current_piece:
       raise WrongPiecePlayedError(piece)
 
-    placed_piece = self.board.place(piece, x, y, orientation, player)
+    if len(self.board.pieces) == 0:
+      placed_piece = self.board.place_initial(piece, x, y, orientation, player)
+    else:
+      placed_piece = self.board.place(piece, x, y, orientation, player)
     self.prepare_next_turn()
     return placed_piece
 

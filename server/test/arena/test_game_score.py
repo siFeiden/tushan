@@ -33,6 +33,7 @@ class GameScoreTest(unittest.TestCase):
   def test_trivial_board(self):
     board = Board(2)
     game = Game(board, self.players, self.pieces)
+    game.make_turn(self.player1, self.pieces[0], 0, 0, Orientation.South)
 
     expected_scores = {p: 4 for p in self.players}
     self.assertDictEqual(expected_scores, game.scores())
@@ -58,16 +59,17 @@ class GameScoreTest(unittest.TestCase):
                   |  |  |  |
     8 +  +  +  +  +oo+  +oo+  +
     """
-    _, p2, p3, p4, p5, p6, p7 = self.pieces
+    p1, p2, p3, p4, p5, p6, p7 = self.pieces
 
     board = Board(8)
     game = Game(board, self.players, self.pieces)
-    game.make_turn(self.player1, p2, 3, 0, Orientation.South)
-    game.make_turn(self.player2, p3, 4, 0, Orientation.South)
-    game.make_turn(self.player1, p4, 5, 3, Orientation.South)
-    game.make_turn(self.player2, p5, 6, 5, Orientation.South)
-    game.make_turn(self.player1, p6, 4, 5, Orientation.South)
-    game.make_turn(self.player2, p7, 0, 0, Orientation.South)
+    game.make_turn(self.player1, p1, 3, 3, Orientation.South)
+    game.make_turn(self.player2, p2, 3, 0, Orientation.South)
+    game.make_turn(self.player1, p3, 4, 0, Orientation.South)
+    game.make_turn(self.player2, p4, 5, 3, Orientation.South)
+    game.make_turn(self.player1, p5, 6, 5, Orientation.South)
+    game.make_turn(self.player2, p6, 4, 5, Orientation.South)
+    game.make_turn(self.player1, p7, 0, 0, Orientation.South)
 
     expected_scores = {
       self.player1: 1,

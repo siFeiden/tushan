@@ -12,42 +12,42 @@ class ValidPlacementsTest(unittest.TestCase):
 
   def test_valid_placement_p1c2_p2c0(self):
     board = Board(8)
-    board.place_initial(self.piece1, self.player)
+    board.place_simple_initial(self.piece1, self.player)
 
     placed_piece = board.place(self.piece2, 5, 4, Orientation.East, None)
     self.assertIsNotNone(placed_piece)
 
   def test_valid_placement_p1c2_p2c1(self):
     board = Board(8)
-    board.place_initial(self.piece1, self.player)
+    board.place_simple_initial(self.piece1, self.player)
 
     placed_piece = board.place(self.piece2, 6, 4, Orientation.North, None)
     self.assertIsNotNone(placed_piece)
 
   def test_valid_placement_p1c2_p2c4(self):
     board = Board(8)
-    board.place_initial(self.piece1, self.player)
+    board.place_simple_initial(self.piece1, self.player)
 
     placed_piece = board.place(self.piece2, 8, 3, Orientation.West, None)
     self.assertIsNotNone(placed_piece)
 
   def test_valid_placement_p1c5_p2c0(self):
     board = Board(8)
-    board.place_initial(self.piece1, self.player)
+    board.place_simple_initial(self.piece1, self.player)
 
     placed_piece = board.place(self.piece2, 3, 5, Orientation.South, None)
     self.assertIsNotNone(placed_piece)
 
   def test_valid_placement_p1c5_p2c1(self):
     board = Board(8)
-    board.place_initial(self.piece1, self.player)
+    board.place_simple_initial(self.piece1, self.player)
 
     placed_piece = board.place(self.piece2, 3, 6, Orientation.East, None)
     self.assertIsNotNone(placed_piece)
 
   def test_valid_placement_p1c5_p2c4(self):
     board = Board(8)
-    board.place_initial(self.piece1, self.player)
+    board.place_simple_initial(self.piece1, self.player)
 
     placed_piece = board.place(self.piece2, 4, 8, Orientation.North, None)
     self.assertIsNotNone(placed_piece)
