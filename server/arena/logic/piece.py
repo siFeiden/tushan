@@ -61,6 +61,7 @@ class Piece(object):
       [0, 1, 6], [1, 2, 5], [4, 5, 7], [0, 6, 7],
     ]
 
+    # TODO create each piece three times
     return [Piece(1, 3, c) for c in connectors]
 
 

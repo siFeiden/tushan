@@ -96,11 +96,11 @@ class Lobby(object):
       await event.event_queue.publish(reply)
 
   def player_name(self, event):
-    player = self.players[event.id]
+    player = self.players[event.player]
     player.rename(event.name)
 
   async def player_move(self, event):
-    player = self.players[event.id]
+    player = self.players[event.player]
     x = event.x
     y = event.y
     orientation = event.orientation
@@ -108,13 +108,13 @@ class Lobby(object):
     try:
       placed_piece = self.game.make_turn(player, self.game.current_piece, x, y, orientation)
       reply = MoveAcceptedEvent(self.game, placed_piece, self.game.current_piece)
-    except GameException as e:
+    except game.GameException as e:
       reply = DisqualifyPlayerEvent(player, Disqualification.InvalidMove)
 
     await event.event_queue.publish(reply)
 
   async def player_cannot_move(self, event):
-    player = self.players[event.id]
+    player = self.players[event.player]
 
     if self.game.is_over():
       reply = GameIsOverEvent()
