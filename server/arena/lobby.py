@@ -3,8 +3,6 @@ from .events import *
 from .logic import game, piece
 from net.server import ClientConnectedEvent, ClientDisconnectedEvent
 
-import random
-
 
 class Disqualification(Enum):
   InvalidMove = 'invalid_move'
@@ -33,7 +31,8 @@ class PlayerProxy(object):
 
 
 class Lobby(object):
-  def __init__(self):
+  def __init__(self, random):
+    self.random = random
     self.players = {}
     self.game = None
 
@@ -73,6 +72,7 @@ class Lobby(object):
     board = game.Board(18)
     player1, player2 = self.choose_participants()
     pieces = piece.Piece.official_pieces()
+    self.random.shuffle(pieces)
     new_game = game.Game(board, [player1, player2], pieces)
 
     return new_game
@@ -82,7 +82,7 @@ class Lobby(object):
     objectiveWE = [game.Board.Side.West, game.Board.Side.East]
 
     players = list(self.players.values())
-    player1, player2 = random.sample(players, 2)
+    player1, player2 = self.random.sample(players, 2)
     player1.objectives = objectiveNS
     player2.objectives = objectiveWE
     return player1, player2

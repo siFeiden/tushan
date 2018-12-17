@@ -38,8 +38,15 @@ class EventQueue(object):
   async def publish(self, event):
     await self.queue.put(event)
 
+  async def run_until_complete(self):
+    while not self.queue.empty():
+      await self.process_next_event()
+
   async def run(self):
     while True:
+      await self.process_next_event()
+
+  async def process_next_event(self):
       event = await self.queue.get()
       event.event_queue = self
 

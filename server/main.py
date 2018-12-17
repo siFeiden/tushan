@@ -1,5 +1,6 @@
 import argparse
 import asyncio as aio
+import random
 
 from net.server import *
 from eventing.event_queue import Event, EventQueue, HandlerFailedEvent
@@ -28,7 +29,8 @@ class Tushan(object):
     event_queue = EventQueue(options.debug)
     server = Server(event_queue, options.host, options.port)
 
-    lobby = Lobby()
+    random_generator = random.Random()
+    lobby = Lobby(random_generator)
     message_translator = MessageTranslator()
 
     event_queue.register(HandlerFailedEvent, self.handler_failed)
