@@ -19,7 +19,8 @@ class HandlerFailedEvent(Event):
 
 
 class EventQueue(object):
-  def __init__(self):
+  def __init__(self, debug=False):
+    self.debug = debug
     self.queue = aio.Queue()
     self.handlers = defaultdict(list)
 
@@ -43,6 +44,9 @@ class EventQueue(object):
       event.event_queue = self
 
       event_class = type(event)
+      if self.debug:
+        print('Handle', event_class.__name__)
+
       for handler in self.handlers[event_class]:
         await self.fire_event(event, handler)
 
@@ -57,6 +61,6 @@ class EventQueue(object):
         if aio.iscoroutine(result):
           await result
       except Exception as e:
-        if aio.get_event_loop().get_debug():
+        if self.debug:
           traceback.print_exc()
         await self.publish(HandlerFailedEvent(handler, e))

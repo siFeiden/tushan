@@ -25,7 +25,7 @@ class Tushan(object):
     print('ERROR:', event.exception)
 
   async def bootstrap(self, options):
-    event_queue = EventQueue()
+    event_queue = EventQueue(options.debug)
     server = Server(event_queue, options.host, options.port)
 
     lobby = Lobby()
