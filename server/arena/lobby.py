@@ -107,7 +107,10 @@ class Lobby(object):
 
     try:
       placed_piece = self.game.make_turn(player, self.game.current_piece, x, y, orientation)
-      reply = MoveAcceptedEvent(self.game, placed_piece, self.game.current_piece)
+      if len(self.game.pieces) > 0:
+        reply = MoveAcceptedEvent(self.game, placed_piece, self.game.current_piece)
+      else: # All pieces placed, game is over
+        reply = GameIsOverEvent()
     except game.GameException as e:
       reply = DisqualifyPlayerEvent(player, Disqualification.InvalidMove)
 
@@ -143,13 +146,27 @@ class Lobby(object):
     await event.event_queue.publish(reply)
 
   async def game_is_over(self, event):
+    scores = self.game.scores()
+    winner = self.find_winner(scores)
+    reply = GameEndedEvent(winner, scores)
+
     for gameplayer in self.game.players:
       gameplayer.leave(self.game)
-
-    winner, scores = self.game.winner()
-    reply = GameEndedEvent(winner, scores)
     self.game = None
+
     await event.event_queue.publish(reply)
 
     reply = LaunchGameEvent()
     await event.event_queue.publish(reply)
+
+  def find_winner(self, scores):
+    (p1, s1), (p2, s2) = scores.items()
+
+    if s1 == s2:
+      return None
+
+    if s1 < s2:
+      return p2
+
+    return p1
+

@@ -45,6 +45,9 @@ class PlacedPieceSerializer(Serializer):
 class PlayerSerializer(Serializer):
   @staticmethod
   def serialize(player):
+    if player is None:
+      return None
+
     return {
       'id': str(player.id),
       'objectives': [o.value for o in player.objectives],
