@@ -12,7 +12,7 @@ class MessageTranslator(object):
 
   async def onMessageReceived(self, event):
     player_id = event.id
-    content = event.content
+    content = event.json
 
     translation = self.translate(content, player_id)
     await event.event_queue.publish(translation)

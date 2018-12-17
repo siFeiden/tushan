@@ -33,10 +33,11 @@ class PlacedPieceSerializer(Serializer):
 
     serialpiece = PieceSerializer.serialize(piece.piece)
     return {
-      'x': piece.x,
-      'y': piece.y,
-      'orientation': piece.orientation.value,
-      'player': PlayerSerializer.serialize(piece.player),
+      'position': {
+        'x': piece.x,
+        'y': piece.y,
+        'orientation': piece.orientation.value
+      },
       **serialpiece
     }
 
@@ -46,7 +47,8 @@ class PlayerSerializer(Serializer):
   def serialize(player):
     return {
       'id': str(player.id),
-      'objectives': [o.value for o in player.objectives]
+      'objectives': [o.value for o in player.objectives],
+      'name': player.name or ''
     }
 
 
@@ -56,8 +58,8 @@ class BoardSerializer(Serializer):
     assert(board is not None)
 
     return {
-      'size': board.size,
-      'pieces': PlacedPieceSerializer.serialize_many(board.pieces)
+      'dimension': board.size,
+      'stones': PlacedPieceSerializer.serialize_many(board.pieces)
     }
 
 
@@ -66,7 +68,12 @@ class GameSerializer(Serializer):
   def serialize(game):
     assert(game is not None)
 
+    objectives = {}
+    for player in game.players:
+      player_objectives = EnumSerializer.serialize_many(player.objectives)
+      objectives[player.name or player.id] = player_objectives
+
     return {
-      'board': BoardSerializer.serialize(game.board),
-      'players': PlayerSerializer.serialize_many(game.players)
+      'objectives': objectives,
+      **BoardSerializer.serialize(game.board),
     }

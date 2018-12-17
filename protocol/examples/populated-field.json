@@ -7,52 +7,52 @@
   "stones": [
     {
       "width": 2,
-      "heigth": 2,
+      "height": 2,
       "connectors": [3, 4, 5, 7],
       "position": {
-        "x": 6,
-        "y": 5,
-        "orientation": "east"
-      }
-    },
-    {
-      "width": 3,
-      "heigth": 1,
-      "connectors": [1, 2, 7],
-      "position": {
-        "x": 6,
-        "y": 3,
-        "orientation": "east"
+        "x": 5,
+        "y": 4,
+        "orientation": "south"
       }
     },
     {
       "width": 4,
-      "heigth": 1,
+      "height": 1,
       "connectors": [2, 6, 8],
       "position": {
-        "x": 5,
+        "x": 4,
         "y": 5,
-        "orientation": "north"
-      }
-    },
-    {
-      "width": 3,
-      "heigth": 2,
-      "connectors": [0, 9],
-      "position": {
-        "x": 2,
-        "y": 2,
         "orientation": "east"
       }
     },
     {
+      "width": 3,
+      "height": 1,
+      "connectors": [1, 2, 7],
+      "position": {
+        "x": 5,
+        "y": 2,
+        "orientation": "south"
+      }
+    },
+    {
+      "width": 3,
+      "height": 2,
+      "connectors": [0, 4, 9],
+      "position": {
+        "x": 1,
+        "y": 1,
+        "orientation": "south"
+      }
+    },
+    {
       "width": 2,
-      "heigth": 1,
+      "height": 1,
       "connectors": [0, 3, 4],
       "position": {
         "x": 2,
         "y": 1,
-        "orientation": "west"
+        "orientation": "north"
       }
     }
   ]
