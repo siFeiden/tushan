@@ -108,17 +108,29 @@ class Broadcaster(object):
 
   async def __call__(self, event):
     if isinstance(event, ClientConnectedEvent):
-      self.clients[event.id] = event.writer
+      client = event.writer
+      self.clients[event.id] = client
+
+      data = {
+        "type": "name",
+        "name": event.id
+      }
+      self.send_message(client, data)
     elif isinstance(event, ClientDisconnectedEvent):
       self.clients.pop(event.id)
     else:
       try:
         data = event.to_json()
-        payload = json.dumps(data) + '\n'
-        for client in self.clients.values():
-          client.write(payload.encode('utf-8'))
-          await client.drain()
+        await self.broadcast_message(data)
       except AttributeError as e:
         # event cannot be serialized, so don't send it
         pass
 
+  async def send_message(self, client, data):
+    payload = json.dumps(data) + '\n'
+    content = payload.encode('utf-8')
+    await client.write(content)
+
+  async def broadcast_message(self, data):
+    for client in self.clients.values():
+      await self.send_message(client, data)
