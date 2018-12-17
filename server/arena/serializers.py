@@ -1,7 +1,7 @@
 class Serializer(object):
   @classmethod
   def serialize_many(clss, objects):
-    assert(objects is not None)
+    assert objects is not None
 
     return [clss.serialize(o) for o in objects]
 
@@ -9,7 +9,7 @@ class Serializer(object):
 class EnumSerializer(Serializer):
   @staticmethod
   def serialize(enum_option):
-    assert(enum_option is not None)
+    assert enum_option is not None
 
     return enum_option.value
 
@@ -17,7 +17,7 @@ class EnumSerializer(Serializer):
 class PieceSerializer(Serializer):
   @staticmethod
   def serialize(piece):
-    assert(piece is not None)
+    assert piece is not None
 
     return {
       'width': piece.width,
@@ -29,7 +29,7 @@ class PieceSerializer(Serializer):
 class PlacedPieceSerializer(Serializer):
   @staticmethod
   def serialize(piece):
-    assert(piece is not None)
+    assert piece is not None
 
     serialpiece = PieceSerializer.serialize(piece.piece)
     return {
@@ -55,7 +55,7 @@ class PlayerSerializer(Serializer):
 class BoardSerializer(Serializer):
   @staticmethod
   def serialize(board):
-    assert(board is not None)
+    assert board is not None
 
     return {
       'dimension': board.size,
@@ -66,7 +66,7 @@ class BoardSerializer(Serializer):
 class GameSerializer(Serializer):
   @staticmethod
   def serialize(game):
-    assert(game is not None)
+    assert game is not None
 
     objectives = {}
     for player in game.players:

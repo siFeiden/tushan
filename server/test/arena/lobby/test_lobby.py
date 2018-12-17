@@ -16,7 +16,7 @@ class GameSpec(object):
     self.pieces = pieces
     self.positions = positions
 
-    assert(len(self.players) == 2)
+    assert len(self.players) == 2
 
   async def play_on(self, event_queue):
     for player in self.players:

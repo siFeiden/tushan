@@ -147,7 +147,7 @@ class PlacedPiece(object):
     """Return the unit vectors for this piece's area according to the current orientation.
 
     The first vector points towards the second point of the rectangle
-    in clockwise direction. The first vector points towards the fourth
+    in clockwise direction. The second vector points towards the fourth
     point of the rectangle in clockwise direction:
     --> e1
     x--+--+ | e2
