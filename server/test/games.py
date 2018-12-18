@@ -7,8 +7,9 @@ from arena.lobby import Lobby
 from arena.logic.game import Board, Game, Player
 from arena.logic.piece import Orientation, Piece
 from arena.events import *
-from eventing.event_queue import EventQueue, HandlerFailedEvent
+from eventing.event_queue import HandlerFailedEvent
 from net.server import ClientConnectedEvent
+from test.event_queue import TestingEventQueue
 
 
 class GameSpec(object):
@@ -41,7 +42,6 @@ class GameSpec(object):
 class GamePlan(object):
   def __init__(self, gamespec):
     self.gamespec = gamespec
-    self.event_queue = EventQueue()
 
     random = MagicMock()
     random.sample.side_effect = lambda l, n: l[:n]
@@ -52,20 +52,20 @@ class GamePlan(object):
     piece_list.clear()
     piece_list.extend(self.gamespec.pieces)
 
-  async def execute(self):
-    self.event_queue.register(BootstrapEvent, self.lobby)
-    await self.event_queue.publish(BootstrapEvent())
-    await self.event_queue.run_until_complete()
+  async def execute_on(self, event_queue):
+    event_queue.register(BootstrapEvent, self.lobby)
+    await event_queue.publish(BootstrapEvent())
+    await event_queue.run_until_complete()
 
     for player in self.gamespec.players:
       event = ClientConnectedEvent(player, None, None)
-      await self.event_queue.publish(event)
-      await self.event_queue.run_until_complete()
+      await event_queue.publish(event)
+      await event_queue.run_until_complete()
 
     i = 0
     for piece, (x, y, orientation) in zip(self.gamespec.pieces, self.gamespec.positions):
       player = self.gamespec.players[i]
       event = PlayerMoveEvent(player, x, y, orientation)
-      await self.event_queue.publish(event)
-      await self.event_queue.run_until_complete()
+      await event_queue.publish(event)
+      await event_queue.run_until_complete()
       i = 1 - i
