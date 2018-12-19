@@ -4,7 +4,7 @@ import random
 
 from net.server import *
 from eventing.event_queue import Event, EventQueue, HandlerFailedEvent
-from arena.lobby import Lobby
+from arena.lobby import Lobby, OfficialGameBuilder
 from arena.message_translator import MessageTranslator
 from arena import events as evt
 
@@ -29,8 +29,8 @@ class Tushan(object):
     event_queue = EventQueue(options.debug)
     server = Server(event_queue, options.host, options.port)
 
-    random_generator = random.Random()
-    lobby = Lobby(random_generator)
+    game_builder = OfficialGameBuilder()
+    lobby = Lobby(game_builder)
     message_translator = MessageTranslator()
 
     event_queue.register(HandlerFailedEvent, self.handler_failed)

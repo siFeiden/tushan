@@ -49,21 +49,6 @@ class Piece(object):
     assert height > 0, 'height must be positive'
     assert all(0 <= c < 2*width+2*height for c in connectors), 'invalid connector'
 
-  @staticmethod
-  def official_pieces():
-    connectors = [
-      [0, 3, 4], [1, 6, 7], [3, 5, 6], [0, 2, 3],
-      [1, 3, 6], [0, 1, 7], [1, 4, 5], [3, 4, 7],
-      [0, 2, 4], [0, 3, 5], [0, 4, 5], [0, 1, 2],
-      [3, 5, 7], [1, 3, 5], [1, 2, 3], [2, 5, 6],
-      [3, 6, 7], [1, 2, 4], [0, 2, 7], [0, 2, 6],
-      [1, 3, 4], [2, 6, 7], [1, 4, 6], [2, 4, 7],
-      [0, 1, 6], [1, 2, 5], [4, 5, 7], [0, 6, 7],
-    ]
-
-    # TODO create each piece three times
-    return [Piece(1, 3, c) for c in connectors]
-
 
 class PlacedPiece(object):
   def __init__(self, piece, x, y, orientation, player):

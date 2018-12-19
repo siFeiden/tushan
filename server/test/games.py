@@ -13,46 +13,68 @@ from test.event_queue import TestingEventQueue
 
 
 class GameSpec(object):
-  def __init__(self, players, pieces, positions):
+  def __init__(self, players, objectives, pieces, positions, size):
     self.players = players
+    self.objectives = objectives
     self.pieces = pieces
     self.positions = positions
+    self.size = size
 
-    assert len(self.players) == 2
+    assert len(players) == 2
+    assert len(pieces) == len(positions)
+    assert size > 0 and size % 2 == 0
 
   @classmethod
   def from_file(clss, path):
     with open(path) as f:
       game = json.load(f)
 
+      size = game['dimension']
       players = list(game['objectives'])
+      all_objectives = {}
       pieces = []
       positions = []
+
+      for name, objectives in game['objectives'].items():
+        all_objectives[name] = [Board.Side(side) for side in objectives]
+
       for p in game['stones']:
         pieces.append(Piece(p['width'], p['height'], p['connectors']))
         pos = p['position']
-        x = pos['x']
-        y = pos['y']
+        x, y = pos['x'], pos['y']
         orientation = Orientation(pos['orientation'])
         positions.append((x, y, orientation))
 
-      return clss(players, pieces, positions)
+      return clss(players, all_objectives, pieces, positions, size)
 
 
 class GamePlan(object):
   def __init__(self, gamespec):
     self.gamespec = gamespec
+    self.lobby = Lobby(self) # pass self as GameBuilder interface
 
-    random = MagicMock()
-    random.sample.side_effect = lambda l, n: l[:n]
-    random.shuffle.side_effect = self.set_lobby_pieces
-    self.lobby = Lobby(random)
+  def build_game(self, players):
+    """Build game according to the gamespec passed in constructor
 
-  def set_lobby_pieces(self, piece_list):
-    piece_list.clear()
-    piece_list.extend(self.gamespec.pieces)
+    With this method we implement the GameBuilder interface, see
+    also OfficialGameBuilder
+    """
+
+    board = Board(self.gamespec.size)
+    chosen_players = []
+    for name in self.gamespec.players:
+      p = players[name]
+      p.objectives = self.gamespec.objectives[name]
+      chosen_players.append(p)
+
+    return Game(board, chosen_players, self.gamespec.pieces)
 
   async def execute_on(self, event_queue):
+    """Execute the game specified via gamespec on the given EventQueue
+
+    This means events for client connections and turn are published
+    on the event queue.
+    """
     event_queue.register(BootstrapEvent, self.lobby)
     await event_queue.publish(BootstrapEvent())
     await event_queue.run_until_complete()

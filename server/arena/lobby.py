@@ -30,9 +30,44 @@ class PlayerProxy(object):
     return self.in_game
 
 
+class OfficialGameBuilder(object):
+  def build_game(self, players):
+    board = game.Board(18)
+    player1, player2 = self.choose_participants(players)
+    pieces = self.official_pieces()
+    random.shuffle(pieces)
+
+    return game.Game(board, [player1, player2], pieces)
+
+  def choose_participants(self, players):
+    objectiveNS = [game.Board.Side.North, game.Board.Side.South]
+    objectiveWE = [game.Board.Side.West, game.Board.Side.East]
+
+    players = list(self.players.values())
+    player1, player2 = random.sample(players, 2)
+    player1.objectives = objectiveNS
+    player2.objectives = objectiveWE
+    return player1, player2
+
+  @staticmethod
+  def official_pieces():
+    connectors = [
+      [0, 3, 4], [1, 6, 7], [3, 5, 6], [0, 2, 3],
+      [1, 3, 6], [0, 1, 7], [1, 4, 5], [3, 4, 7],
+      [0, 2, 4], [0, 3, 5], [0, 4, 5], [0, 1, 2],
+      [3, 5, 7], [1, 3, 5], [1, 2, 3], [2, 5, 6],
+      [3, 6, 7], [1, 2, 4], [0, 2, 7], [0, 2, 6],
+      [1, 3, 4], [2, 6, 7], [1, 4, 6], [2, 4, 7],
+      [0, 1, 6], [1, 2, 5], [4, 5, 7], [0, 6, 7],
+    ]
+
+    # TODO create each piece three times
+    return [Piece(1, 3, c) for c in connectors]
+
+
 class Lobby(object):
-  def __init__(self, random):
-    self.random = random
+  def __init__(self, game_builder):
+    self.game_builder = game_builder
     self.players = {}
     self.game = None
 
@@ -59,7 +94,7 @@ class Lobby(object):
     if not self.can_start_game():
       return
 
-    game = self.build_game()
+    game = self.game_builder.build_game(self.players)
     reply = GameStartedEvent(game)
     await event.event_queue.publish(reply)
 
@@ -67,25 +102,6 @@ class Lobby(object):
     # Start new game if enough players and there
     # is no game running
     return not self.game and len(self.players) >= 2
-
-  def build_game(self):
-    board = game.Board(18)
-    player1, player2 = self.choose_participants()
-    pieces = piece.Piece.official_pieces()
-    self.random.shuffle(pieces)
-    new_game = game.Game(board, [player1, player2], pieces)
-
-    return new_game
-
-  def choose_participants(self):
-    objectiveNS = [game.Board.Side.North, game.Board.Side.South]
-    objectiveWE = [game.Board.Side.West, game.Board.Side.East]
-
-    players = list(self.players.values())
-    player1, player2 = self.random.sample(players, 2)
-    player1.objectives = objectiveNS
-    player2.objectives = objectiveWE
-    return player1, player2
 
   async def client_disconnected(self, event):
     assert event.id in self.players
