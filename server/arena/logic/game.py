@@ -46,11 +46,16 @@ class Board(object):
     Collisions and connections with other stones are not checked
     but piece must be placed in the middle of the board.
     """
-    # TODO check that piece is placed in middle of board
     placed_piece = PlacedPiece(piece, x, y, orientation, owner)
 
+    if len(self.pieces) > 0:
+      raise InvalidPlacementError('Only one initial piece can be placed')
+
     if not self.contains(placed_piece):
-      raise InvalidPlacementError()
+      raise InvalidPlacementError('Piece not in board')
+
+    if not self.overlaps_initial_area(placed_piece):
+      raise InvalidPlacementError('Initial piece must be placed in center of board')
 
     self.pieces.append(placed_piece)
     return placed_piece
@@ -78,6 +83,15 @@ class Board(object):
     self.validate_placement(placed_piece)
     self.pieces.append(placed_piece)
     return placed_piece
+
+  def overlaps_initial_area(self, piece):
+    """Check if piece is in the area the inital piece must overlap.
+
+    This area contains the four central cells on a board of even size.
+    """
+    center = self.size // 2
+    center_area = Rect.of(center - 1, center - 1, center + 1, center + 1)
+    return center_area.overlaps(piece.area())
 
   def contains(self, piece):
     """Check if the board's area contains piece."""
