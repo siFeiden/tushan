@@ -2,11 +2,12 @@ import argparse
 import asyncio as aio
 import random
 
-from net.server import *
-from eventing.event_queue import Event, EventQueue, HandlerFailedEvent
+from arena.bots import Simpleton
 from arena.lobby import Lobby, OfficialGameBuilder
 from arena.message_translator import MessageTranslator
 from arena import events as evt
+from eventing.event_queue import Event, EventQueue, HandlerFailedEvent
+from net.server import *
 
 
 class BootstrapEvent(Event):
@@ -17,6 +18,7 @@ class Tushan(object):
   def create_argparser(self):
     parser = argparse.ArgumentParser(description='Tushan game server')
     parser.add_argument('-d', '--debug', action='store_true')
+    parser.add_argument('-b', '--bot', action='store_true')
     parser.add_argument('host')
     parser.add_argument('port', type=int)
 
@@ -33,11 +35,15 @@ class Tushan(object):
     lobby = Lobby(game_builder)
     message_translator = MessageTranslator()
 
+    if options.bot:
+      bot = Simpleton()
+      event_queue.register(BootstrapEvent, bot)
+
     event_queue.register(HandlerFailedEvent, self.handler_failed)
     event_queue.register(BootstrapEvent, lobby)
     event_queue.register(BootstrapEvent, message_translator)
 
-    # Sent BootstrapEvent to allow other components to register listeners themselves
+    # Send BootstrapEvent to allow other components to register listeners themselves
     event = BootstrapEvent()
     await event_queue.publish(event)
 
