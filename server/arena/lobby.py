@@ -1,3 +1,5 @@
+import random
+
 from enum import Enum
 from .events import *
 from .logic import game, piece
@@ -43,7 +45,7 @@ class OfficialGameBuilder(object):
     objectiveNS = [game.Board.Side.North, game.Board.Side.South]
     objectiveWE = [game.Board.Side.West, game.Board.Side.East]
 
-    players = list(self.players.values())
+    players = list(players.values())
     player1, player2 = random.sample(players, 2)
     player1.objectives = objectiveNS
     player2.objectives = objectiveWE
@@ -62,7 +64,7 @@ class OfficialGameBuilder(object):
     ]
 
     # TODO create each piece three times
-    return [Piece(1, 3, c) for c in connectors]
+    return [piece.Piece(1, 3, c) for c in connectors]
 
 
 class Lobby(object):

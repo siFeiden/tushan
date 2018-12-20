@@ -113,9 +113,9 @@ class Broadcaster(object):
 
       data = {
         "type": "name",
-        "name": event.id
+        "name": str(event.id)
       }
-      self.send_message(client, data)
+      await self.send_message(client, data)
     elif isinstance(event, ClientDisconnectedEvent):
       self.clients.pop(event.id)
     else:
@@ -129,7 +129,8 @@ class Broadcaster(object):
   async def send_message(self, client, data):
     payload = json.dumps(data) + '\n'
     content = payload.encode('utf-8')
-    await client.write(content)
+    client.write(content)
+    await client.drain()
 
   async def broadcast_message(self, data):
     for client in self.clients.values():

@@ -74,7 +74,8 @@ class GameSerializer(Serializer):
     objectives = {}
     for player in game.players:
       player_objectives = EnumSerializer.serialize_many(player.objectives)
-      objectives[player.name or player.id] = player_objectives
+      key = str(player.name or player.id)
+      objectives[key] = player_objectives
 
     return {
       'objectives': objectives,
