@@ -111,21 +111,27 @@ class Board(object):
 
 
 class Player(object):
-  def __init__(self, id, objectives):
+  def __init__(self, id):
     self.id = id
-    self.objectives = objectives
 
-    assert len(objectives) == 2, 'invalid player objectives'
+  def __eq__(self, other):
+    return self.id == other.id
+
+  def __hash__(self):
+    return hash(self.id)
 
 
 class Game(object):
-  def __init__(self, board, players, pieces):
+  def __init__(self, board, players, objectives, pieces):
     self.board = board
     self.players = deque(players)
+    self.objectives = objectives
     self.pieces = deque(pieces)
 
     assert len(self.pieces) > 0, 'game needs at least one piece'
     assert len(self.players) >= 2, 'game needs at least two players'
+    assert len(objectives) == len(players), 'each player needs objectives'
+    assert all(len(objectives[p]) == 2 for p in players), 'each player needs two board sides'
 
   @property
   def current_player(self):
@@ -170,7 +176,7 @@ class Game(object):
 
     scores = {}
     for player in self.players:
-      side1, side2 = player.objectives
+      side1, side2 = self.objectives[player]
       scores[player] = sides[side1] * sides[side2]
 
     return scores

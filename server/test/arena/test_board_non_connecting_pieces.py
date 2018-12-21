@@ -9,8 +9,8 @@ class NonConnectionPiecesBoardTest(unittest.TestCase):
     self.piece1 = Piece(2, 2, [2, 3, 7])
     self.piece2 = Piece(1, 3, [1, 2])
     self.piece3 = Piece(1, 3, [0, 7])
-    self.player1 = Player(1, [0, 1])
-    self.player2 = Player(2, [0, 1])
+    self.player1 = Player(1)
+    self.player2 = Player(2)
 
     self.board1 = Board(8)
     self.board1.place_simple_initial(self.piece1, self.player1)

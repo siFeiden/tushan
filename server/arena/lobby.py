@@ -15,7 +15,6 @@ class PlayerProxy(object):
   def __init__(self, id):
     self.id = id
     self.name = None
-    self.objectives = None
     self.in_game = False
 
   def rename(self, event):
@@ -26,29 +25,33 @@ class PlayerProxy(object):
 
   def leave(self, game):
     self.in_game = False
-    self.objectives = None
 
   def playing(self):
     return self.in_game
+
+  def __eq__(self, other):
+    return self.id == other.id
+
+  def __hash__(self):
+    return hash(self.id)
 
 
 class OfficialGameBuilder(object):
   def build_game(self, players):
     board = game.Board(18)
     player1, player2 = self.choose_participants(players)
+    objectives = {
+      player1: [game.Board.Side.North, game.Board.Side.South],
+      player2: [game.Board.Side.West, game.Board.Side.East]
+    }
     pieces = self.official_pieces()
     random.shuffle(pieces)
 
-    return game.Game(board, [player1, player2], pieces)
+    return game.Game(board, [player1, player2], objectives, pieces)
 
   def choose_participants(self, players):
-    objectiveNS = [game.Board.Side.North, game.Board.Side.South]
-    objectiveWE = [game.Board.Side.West, game.Board.Side.East]
-
     players = list(players.values())
     player1, player2 = random.sample(players, 2)
-    player1.objectives = objectiveNS
-    player2.objectives = objectiveWE
     return player1, player2
 
   @staticmethod

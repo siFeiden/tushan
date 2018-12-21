@@ -61,13 +61,10 @@ class GamePlan(object):
     """
 
     board = Board(self.gamespec.size)
-    chosen_players = []
-    for name in self.gamespec.players:
-      p = players[name]
-      p.objectives = self.gamespec.objectives[name]
-      chosen_players.append(p)
+    chosen_players = [players[id] for id in self.gamespec.players]
+    objectives = {player: self.gamespec.objectives[player.id] for player in chosen_players}
 
-    return Game(board, chosen_players, self.gamespec.pieces)
+    return Game(board, chosen_players, objectives, self.gamespec.pieces)
 
   async def execute_on(self, event_queue):
     """Execute the game specified via gamespec on the given EventQueue

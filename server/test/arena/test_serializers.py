@@ -19,8 +19,7 @@ class SerializerSpecTest(unittest.TestCase):
     self.assertSerializationEqual(spec_file, serialized)
 
   def test_placed_piece_spec(self):
-    objectives = [Board.Side.North, Board.Side.South]
-    player = Player(1, objectives)
+    player = Player(1)
     player.name = 'abraham'
 
     piece = Piece(3, 1, [0, 3, 7])
@@ -47,18 +46,21 @@ class SerializerSpecTest(unittest.TestCase):
 
 
   def test_game_spec(self):
-    objectives1 = [Board.Side.North, Board.Side.South]
-    player1 = Player(1, objectives1)
+    player1 = Player(1)
     player1.name = 'Player A'
 
-    objectives2 = [Board.Side.East, Board.Side.West]
-    player2 = Player(1, objectives2)
+    player2 = Player(2)
     player2.name = 'Player B'
+
+    objectives = {
+      player1: [Board.Side.North, Board.Side.South],
+      player2: [Board.Side.East, Board.Side.West]
+    }
 
     pieces, positions = self.game_spec_pieces()
 
     board = Board(10)
-    game = Game(board, [player1, player2], pieces)
+    game = Game(board, [player1, player2], objectives, pieces)
 
     for piece, pos in zip(pieces, positions):
       game.make_turn(game.current_player, piece, *pos)

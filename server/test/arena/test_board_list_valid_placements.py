@@ -8,7 +8,7 @@ class ValidPlacementsTest(unittest.TestCase):
   def setUp(self):
     self.piece1 = Piece(2, 2, [2, 5])
     self.piece2 = Piece(1, 3, [0, 1, 4])
-    self.player = Player(1, [0, 1])
+    self.player = Player(1)
 
   def test_list_valid_placements(self):
     board = Board(8)

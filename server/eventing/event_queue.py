@@ -19,7 +19,7 @@ class HandlerFailedEvent(Event):
 
 
 class EventQueue(object):
-  def __init__(self, debug=False):
+  def __init__(self, *, debug=False):
     self.debug = debug
     self.queue = aio.Queue()
     self.handlers = defaultdict(list)
