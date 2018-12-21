@@ -155,8 +155,12 @@ class Game(object):
 
   def is_over(self):
     no_more_pieces = len(self.pieces) == 0
-    no_more_placements = len(board.valid_placements(self.current_piece)) == 0
-    return no_more_pieces or no_more_placements
+    if no_more_pieces:
+      return True
+
+    valid_placements = self.board.valid_placements(self.current_piece)
+    no_more_placements = len(list(valid_placements)) == 0
+    return no_more_placements
 
   def scores(self):
     sides = Counter(dock.board_side(self.board)

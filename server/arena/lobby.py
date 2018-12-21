@@ -92,19 +92,6 @@ class Lobby(object):
     reply = LaunchGameEvent()
     await event.event_queue.publish(reply)
 
-  async def launch_game(self, event):
-    if not self.can_start_game():
-      return
-
-    game = self.game_builder.build_game(self.players)
-    reply = GameStartedEvent(game)
-    await event.event_queue.publish(reply)
-
-  def can_start_game(self):
-    # Start new game if enough players and there
-    # is no game running
-    return not self.game and len(self.players) >= 2
-
   async def client_disconnected(self, event):
     assert event.id in self.players
 
@@ -112,6 +99,26 @@ class Lobby(object):
     if player.playing():
       reply = DisqualifyPlayerEvent(player, Disqualification.QuitGame)
       await event.event_queue.publish(reply)
+
+  async def launch_game(self, event):
+    if not self.can_start_game():
+      return
+
+    self.game = self.game_builder.build_game(self.players)
+    reply = GameStartedEvent(self.game)
+    await event.event_queue.publish(reply)
+
+  def can_start_game(self):
+    # Start new game if enough players and there
+    # is no game running
+    return not self.game and len(self.players) >= 2
+
+  async def game_started(self, event):
+    for gameplayer in self.game.players:
+      gameplayer.join(self.game)
+
+    reply = FirstTurnEvent(self.game, self.game.current_piece)
+    await event.event_queue.publish(reply)
 
   def player_name(self, event):
     player = self.players[event.player]
@@ -125,11 +132,11 @@ class Lobby(object):
 
     try:
       placed_piece = self.game.make_turn(player, self.game.current_piece, x, y, orientation)
-      if len(self.game.pieces) > 0:
-        reply = MoveAcceptedEvent(self.game, placed_piece, self.game.current_piece)
-      else: # All pieces placed, game is over
+      if self.game.is_over():
         reply = GameIsOverEvent()
-    except game.GameException as e:
+      else:
+        reply = MoveAcceptedEvent(self.game, placed_piece, self.game.current_piece)
+    except game.GameException:
       reply = DisqualifyPlayerEvent(player, Disqualification.InvalidMove)
 
     await event.event_queue.publish(reply)
@@ -142,14 +149,6 @@ class Lobby(object):
     else:
       reply = DisqualifyPlayerEvent(player, Disqualification.InvalidMove)
 
-    await event.event_queue.publish(reply)
-
-  async def game_started(self, event):
-    self.game = event.game
-    for gameplayer in self.game.players:
-      gameplayer.join(self.game)
-
-    reply = FirstTurnEvent(self.game, self.game.current_piece)
     await event.event_queue.publish(reply)
 
   async def disqualify_player(self, event):
