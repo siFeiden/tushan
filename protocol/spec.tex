@@ -13,7 +13,7 @@
 \usepackage{hyperref}
 
 \usetikzlibrary{decorations.pathreplacing, angles, quotes, matrix, positioning,
-  patterns}
+  patterns, matrix}
 
 \newcommand{\tushan}{\textsc{Tushan}}
 
@@ -430,48 +430,78 @@ for the orientation of placed \hyperlink{stone}{\emph{stones}}.
 
 \section{Protocol}
 
-\subsection{Incoming messages}
+\subsection{Incoming Messages}
 In the following we document the messages that the players receive from the
 server. Each message is a single json object containing a property \texttt{type}
 and all data properties at the root of the object.
 Every message is encoded as a single line of json and terminated by
 \texttt{\textbackslash n}. For example:
-\mintinline{json}{{ "type": "gamestarted", "game": {...} }}
+\mintinline{json}{{ "type": "gamestarted", "game": {...} }}.
+The data property \texttt{game} is always a serialized game as
+specified in the example above.
 
 \begin{itemize}
+\item \texttt{PlayerNameEvent} \\
+  Sent to the player once on connect with the id he was assigned
+  by the server. Save your name to find out when it's your turn. \\
+  type: \texttt{name} \\
+  data props: \texttt{name} \\
+  required action: none
+
 \item \texttt{GameStartedEvent} \\
   Sent when a new game was started \\
   type: \texttt{gamestarted} \\
-  data props: \texttt{game}
-
-\item \texttt{MoveAcceptedEvent} \\
-  Sent when a player's move has been accepted \\
-  type: \texttt{moveaccepted} \\
-  data props: \texttt{game}, \texttt{placed\_piece}, \texttt{next\_piece}
-
-\item \texttt{GameIsOverEvent} \\
-  Sent when no more moves in a game are possible \\
-  type: \texttt{gameisover} \\
-  data props: none
-
-\item \texttt{GameEndedEvent} \\
-  Sent when a game has ended and scores and winner have been calculated \\
-  type: \texttt{gameended} \\
-  data props: \texttt{winner}, \texttt{scores}
-
-\item \texttt{GameCancelledEvent} \\
-  Sent when a game must be cancelled because of a disqualification \\
-  type: \texttt{gamecancelled} \\
-  data props: \texttt{game}, \texttt{reason}
+  data props: \texttt{game} \\
+  required action: none
 
 \item \texttt{FirstTurnEvent} \\
   Sent when the first turn should be made \\
   type: \texttt{firstturn} \\
-  data props: \texttt{game}, \texttt{piece}
+  data props:
+    \begin{itemize}
+      \item \texttt{game}
+      \item \texttt{piece}: the piece to be placed
+        on the board
+    \end{itemize}
+  required action: The current player should answer
+    with a valid initial move.
+
+\item \texttt{MoveAcceptedEvent} \\
+  Sent when a player's move has been accepted \\
+  type: \texttt{moveaccepted} \\
+  data props:
+    \begin{itemize}
+      \item \texttt{game}
+      \item \texttt{placed\_piece}: the piece that was just
+        placed by the previous player and accepted by the
+        server
+      \item \texttt{next\_piece}: the next piece to be placed
+        on the board
+    \end{itemize}
+  required action: The current player should answer
+    with a valid move.
+
+\item \texttt{GameIsOverEvent} \\
+  Sent when no more moves in a game are possible \\
+  type: \texttt{gameisover} \\
+  data props: none \\
+  required action: none
+
+\item \texttt{GameEndedEvent} \\
+  Sent when a game has ended and scores and winner have been calculated \\
+  type: \texttt{gameended} \\
+  data props: \texttt{winner}, \texttt{scores} \\
+  required action: none
+
+\item \texttt{GameCancelledEvent} \\
+  Sent when a game must be cancelled because of a disqualification \\
+  type: \texttt{gamecancelled} \\
+  data props: \texttt{game}, \texttt{reason} \\
+  required action: none
 \end{itemize}
 
 
-\subsection{Outgoing messages}
+\subsection{Outgoing Messages}
 Here, we document the messages that a player can send to the server.
 As above, every message must be encoded as a json object and then be
 sent as a single line of text. For example:
@@ -490,5 +520,30 @@ sent as a single line of text. For example:
   type: \texttt{gameover} \\
   required data props: none
 \end{itemize}
+
+
+\subsection{Message Lifecycle}
+Usually the messages defined above should occur
+according to the following state machine: \\
+\begin{tikzpicture}[semithick]
+  \matrix (m) [matrix of nodes,row sep=3em,column sep=1em]
+  {
+    {\ }       & {\ }          & PlayerName   & {\ }      \\
+    GameEnded  & {\ }          & GameStarted  & {\ }      \\
+    GameIsOver & GameCancelled & {\ }         & FirstTurn \\
+    {\ }       & {\ }          & MoveAccepted & {\ }      \\
+  };
+
+  \draw[->] (m-1-2) to node[left] {} (m-1-3);
+  \draw[->] (m-1-3) to node[above] {} (m-2-3);
+  \draw[->, bend left] (m-2-3) to node[above] {} (m-3-4);
+  \draw[->, bend left] (m-3-4) to node[right] {move} (m-4-3);
+  \draw[->, bend left] (m-4-3) to node[below] {} (m-3-1);
+  \draw[->, bend left] (m-4-3) to node[below] {} (m-3-2);
+  \draw[->] (m-3-1) to node[below] {} (m-2-1);
+  \draw[->, bend left] (m-3-2) to node[left] {} (m-2-3.180);
+  \draw[->, bend left=20] (m-2-1) to node[left] {} (m-2-3);
+  \draw[bend left=130, looseness=35, ->] (m-4-3.280) to node[below] {move} (m-4-3.260);
+\end{tikzpicture}
 
 \end{document}
