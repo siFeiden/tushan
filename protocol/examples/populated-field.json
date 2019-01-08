@@ -4,6 +4,7 @@
     "Player A": ["north", "south"],
     "Player B": ["east", "west"]
   },
+  "current_player": "Player B",
   "stones": [
     {
       "width": 2,

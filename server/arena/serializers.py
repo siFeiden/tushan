@@ -79,5 +79,6 @@ class GameSerializer(Serializer):
 
     return {
       'objectives': objectives,
+      'current_player': str(game.current_player.id),
       **BoardSerializer.serialize(game.board),
     }

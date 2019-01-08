@@ -46,11 +46,11 @@ class SerializerSpecTest(unittest.TestCase):
 
 
   def test_game_spec(self):
-    player1 = Player(1)
-    player1.name = 'Player A'
+    player1 = Player('Player A')
+    player1.name = player1.id
 
-    player2 = Player(2)
-    player2.name = 'Player B'
+    player2 = Player('Player B')
+    player2.name = player2.id
 
     objectives = {
       player1: [Board.Side.North, Board.Side.South],
