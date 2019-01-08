@@ -10,6 +10,18 @@ class Orientation(Enum):
   West  = 'west'
 
 
+class PieceConnection(Enum):
+  Match = 'match' # Pieces have at least two matching connectors
+  Neutral = 'neutral' # Pieces fit next to each other but have no match
+  Incompatible = 'incompatible' # Pieces are incompatible
+
+  def __bool__(self):
+    """A PieceConnection is truthy if it is a match.
+    Implemented for backwards compatibility.
+    """
+    return self == PieceConnection.Match
+
+
 class DockingPoint(object):
   def __init__(self, x, y, is_connector):
     self.x = x
@@ -83,20 +95,26 @@ class PlacedPiece(object):
     assert len(other_docks) > 0, 'no other docking points'
 
     if len(commmon_docks) == 0:
-      return False
+      return PieceConnection.Neutral
 
     connectors = {d for d in docks if d.is_connector}
     other_connectors = {d for d in other_docks if d.is_connector}
 
-    are_docks_compatible = len((commmon_docks & connectors) ^ (commmon_docks & other_connectors)) == 0
-    has_connector_match = len(connectors & other_connectors) > 0
-    return are_docks_compatible and has_connector_match
+    docks_compatible = len((commmon_docks & connectors) ^ (commmon_docks & other_connectors)) == 0
+    connector_match = len(connectors & other_connectors) > 0
+
+    if not docks_compatible:
+      return PieceConnection.Incompatible
+
+    if connector_match:
+      return PieceConnection.Match
+    else:
+      return PieceConnection.Neutral
 
   def docking_points(self):
     """Calculate the points where this piece can connect to another piece.
 
-    Returns a map from points to bool: the map's value is True iff the
-    point is a docking point.
+    Returns a set of DockingPoints.
     """
     docking_points = set()
     origin = Point(self.x, self.y)

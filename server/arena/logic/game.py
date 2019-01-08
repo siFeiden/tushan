@@ -1,7 +1,7 @@
 from collections import Counter, deque
 from enum import Enum
 
-from .piece import Orientation, Piece, PlacedPiece
+from .piece import Orientation, Piece, PieceConnection, PlacedPiece
 from .placements import ValidPlacements
 from ._shapes import Point, Rect
 
@@ -104,7 +104,10 @@ class Board(object):
 
   def connects_one(self, piece):
     """Check if piece connects to any piece on the board."""
-    return any(piece.connects_to(placed) for placed in self.pieces)
+    connections = [piece.connects_to(placed) for placed in self.pieces]
+
+    return (PieceConnection.Incompatible not in connections and
+            PieceConnection.Match in connections)
 
   def valid_placements(self, piece):
     yield from ValidPlacements(self, piece)

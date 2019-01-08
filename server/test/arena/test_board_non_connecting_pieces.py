@@ -9,6 +9,7 @@ class NonConnectionPiecesBoardTest(unittest.TestCase):
     self.piece1 = Piece(2, 2, [2, 3, 7])
     self.piece2 = Piece(1, 3, [1, 2])
     self.piece3 = Piece(1, 3, [0, 7])
+    self.piece4 = Piece(1, 3, [1])
     self.player1 = Player(1)
     self.player2 = Player(2)
 
@@ -53,4 +54,5 @@ class NonConnectionPiecesBoardTest(unittest.TestCase):
 
   def test_multi_piece_connector_mismatch(self):
     with self.assertRaises(InvalidPlacementError):
-      self.board2.place(self.piece2, 5, 5, Orientation.South, None)
+      # piece4 connects to piece1 but not to piece3
+      self.board2.place(self.piece4, 5, 5, Orientation.East, None)
